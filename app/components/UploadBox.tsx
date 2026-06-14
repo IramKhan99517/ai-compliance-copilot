@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Upload, FileText, Loader2 } from "lucide-react";
 
 export default function UploadBox({ language = "en" }: { language?: string }) {
   const [file, setFile] = useState<File | null>(null);
@@ -18,14 +17,10 @@ export default function UploadBox({ language = "en" }: { language?: string }) {
 
     const res = await fetch("/api/analyze", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text, language }), // ✅ language sent
+      body: JSON.stringify({ text, language }),
     });
 
     const data = await res.json();
-
     setResult(data);
     setLoading(false);
   };
@@ -33,22 +28,14 @@ export default function UploadBox({ language = "en" }: { language?: string }) {
   return (
     <div className="mt-6 space-y-6">
 
-      {/* ✨ Upload Box */}
-      <div className="p-6 border-2 border-dashed rounded-2xl text-center hover:border-black transition bg-white shadow-sm">
+      {/* 📤 Upload Box */}
+      <div className="p-6 border-2 border-dashed rounded-2xl text-center bg-white shadow-sm">
 
-        <label className="cursor-pointer flex flex-col items-center justify-center">
-          <Upload className="w-10 h-10 text-gray-500 mb-2" />
-
-          <p className="text-gray-700 font-medium">
+        <label className="cursor-pointer flex flex-col items-center">
+          <p className="font-medium">
             {language === "ar"
-              ? "اسحب الملف هنا"
-              : "Drag & drop your contract"}
-          </p>
-
-          <p className="text-sm text-gray-400">
-            {language === "ar"
-              ? "أو اضغط للاختيار"
-              : "or click to browse"}
+              ? "اسحب العقد هنا أو اضغط للتحميل"
+              : "Drag & drop your contract or click to upload"}
           </p>
 
           <input
@@ -59,18 +46,18 @@ export default function UploadBox({ language = "en" }: { language?: string }) {
           />
         </label>
 
-        {/* Selected File */}
+        {/* File name */}
         {file && (
-          <div className="mt-4 flex items-center justify-center gap-2 text-sm bg-gray-100 p-2 rounded">
-            <FileText className="w-4 h-4" />
-            {file.name}
+          <div className="mt-4 px-3 py-2 bg-gray-200 rounded-full inline-block text-sm">
+            📄 {file.name}
           </div>
         )}
 
-        {/* Button */}
+        {/* Analyze Button */}
         <button
           onClick={handleAnalyze}
-          className="mt-4 px-5 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition"
+          disabled={loading}
+          className="mt-4 px-6 py-3 bg-black text-white rounded-xl hover:bg-gray-900 transition transform hover:scale-105"
         >
           {language === "ar" ? "تحليل العقد" : "Analyze Contract"}
         </button>
@@ -78,53 +65,67 @@ export default function UploadBox({ language = "en" }: { language?: string }) {
 
       {/* ⏳ Loading */}
       {loading && (
-        <div className="flex items-center gap-2 text-gray-600">
-          <Loader2 className="animate-spin w-5 h-5" />
-          {language === "ar"
-            ? "جارٍ تحليل العقد..."
-            : "Analyzing contract..."}
+        <div className="text-center font-medium">
+          {language === "ar" ? "جارٍ التحليل..." : "Analyzing contract..."}
         </div>
       )}
 
-      {/* ✅ Results */}
-      {result && !loading && (
-        <div className="space-y-4">
+      {/* ✅ RESULT */}
+      {result && (
+        <div className="space-y-6">
 
-          {/* Summary */}
-          <div className="p-5 border rounded-2xl bg-white shadow">
+          {/* ✅ Risk Score */}
+          {result.riskScore && (
+            <div className="p-4 bg-yellow-100 rounded-xl text-center">
+              <p className="font-semibold">
+                {language === "ar" ? "درجة المخاطر" : "Risk Score"}
+              </p>
+              <p className="text-2xl font-bold">{result.riskScore}%</p>
+            </div>
+          )}
+
+          {/* ✅ SUMMARY */}
+          <div className="p-5 border rounded-xl bg-white shadow">
             <h2 className="font-semibold text-lg mb-2">
               {language === "ar" ? "الملخص" : "Summary"}
             </h2>
-            <p className="text-gray-700">{result.summary}</p>
+            <p className="text-gray-700">
+              {result.summary}
+            </p>
           </div>
 
-          {/* Risks */}
-          <div className="p-5 border rounded-2xl bg-red-50 shadow">
-            <h2 className="font-semibold text-lg mb-2 text-red-600">
-              {language === "ar" ? "المخاطر" : "Risks"}
+          {/* ⚠️ RISKS */}
+          <div className="p-5 border rounded-xl bg-red-50 shadow">
+            <h2 className="font-semibold text-lg text-red-600 mb-2">
+              ⚠️ {language === "ar" ? "المخاطر الرئيسية" : "Key Risks"}
             </h2>
-            <ul className="list-disc ml-5 text-gray-700">
+
+            <ul className="space-y-2">
               {result.risks?.map((risk: string, i: number) => (
-                <li key={i}>{risk}</li>
+                <li key={i} className="text-gray-700">
+                  • {risk}
+                </li>
               ))}
             </ul>
           </div>
 
-          {/* Suggestions */}
-          <div className="p-5 border rounded-2xl bg-green-50 shadow">
-            <h2 className="font-semibold text-lg mb-2 text-green-600">
-              {language === "ar" ? "التوصيات" : "Suggestions"}
+          {/* 💡 SUGGESTIONS */}
+          <div className="p-5 border rounded-xl bg-green-50 shadow">
+            <h2 className="font-semibold text-lg text-green-600 mb-2">
+              💡 {language === "ar" ? "التوصيات" : "Recommendations"}
             </h2>
-            <ul className="list-disc ml-5 text-gray-700">
+
+            <ul className="space-y-2">
               {result.suggestions?.map((s: string, i: number) => (
-                <li key={i}>{s}</li>
+                <li key={i} className="text-gray-700">
+                  • {s}
+                </li>
               ))}
             </ul>
           </div>
 
         </div>
       )}
-
     </div>
   );
 }
