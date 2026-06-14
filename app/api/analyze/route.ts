@@ -1,39 +1,41 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
 export async function POST(req: Request) {
   try {
     const { text, language } = await req.json();
-
-    const genAI = new GoogleGenerativeAI(
-      process.env.GEMINI_API_KEY as string
-    );
-
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash-latest"
-    });
 
     const prompt = `
 You are a UAE legal expert.
 
 ${language === "ar" ? "Respond in Arabic." : "Respond in English."}
 
-Return ONLY JSON:
-
+Return JSON:
 {
-  "summary": "short summary",
-  "risks": ["risk1"],
-  "suggestions": ["suggestion1"]
+  "summary": "...",
+  "risks": ["..."],
+  "suggestions": ["..."]
 }
 
 Contract:
 ${text}
 `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    let content = response.text();
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "llama3-8b-8192",
+        messages: [
+          { role: "user", content: prompt }
+        ]
+      })
+    });
 
-    // Clean and extract JSON
+    const data = await response.json();
+
+    let content = data.choices?.[0]?.message?.content || "";
+
     content = content.replace(/```json|```/g, "").trim();
 
     const match = content.match(/\{[\s\S]*\}/);
@@ -46,14 +48,14 @@ ${text}
       parsed = {
         summary: content,
         risks: [],
-        suggestions: [],
+        suggestions: []
       };
     }
 
     return Response.json(parsed);
 
   } catch (error) {
-    console.error("GEMINI SDK ERROR:", error);
+    console.error("GROQ ERROR:", error);
 
     return Response.json({
       summary: "Error occurred",
