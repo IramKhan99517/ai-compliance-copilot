@@ -1,13 +1,8 @@
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 export async function POST(req: Request) {
   try {
     const { text, language } = await req.json();
 
+    // ✅ Prompt
     const prompt = `
 You are a UAE legal and compliance expert.
 
@@ -17,40 +12,51 @@ ${
     : "Respond in English."
 }
 
-Analyze this contract and respond ONLY in JSON format like:
+Analyze this contract and respond ONLY in JSON format:
 
 {
-  "summary": "...",
-  "risks": ["..."],
-  "suggestions": ["..."]
+  "summary": "short summary",
+  "risks": ["risk 1", "risk 2"],
+  "suggestions": ["suggestion 1", "suggestion 2"]
 }
 
 Contract:
 ${text}
-`;
+    `;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: "You are a UAE legal and compliance expert",
+    // ✅ Gemini API call
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-    });
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: prompt }],
+            },
+          ],
+        }),
+      }
+    );
 
-    const content = response.choices[0].message.content;
+    const data = await response.json();
+
+    // ✅ Extract response safely
+    let content =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+    // ✅ Clean markdown if Gemini returns ```json
+    content = content.replace(/```json|```/g, "").trim();
 
     let parsed;
 
     try {
-      parsed = JSON.parse(content || "{}");
+      parsed = JSON.parse(content);
     } catch {
-      // fallback if AI doesn't return valid JSON
+      // fallback if JSON fails
       parsed = {
         summary: content,
         risks: [],
@@ -60,8 +66,8 @@ ${text}
 
     return Response.json(parsed);
 
-  } catch (error: any) {
-    console.error("FULL ERROR:", error);
+  } catch (error) {
+    console.error("FULL ERROR GEMINI:", error);
 
     return Response.json({
       summary: "Error occurred while analyzing contract",
