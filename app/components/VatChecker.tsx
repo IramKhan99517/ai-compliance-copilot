@@ -10,6 +10,8 @@ export default function VatChecker({ language = "en" }: { language?: string }) {
   const handleCheck = () => {
     const rev = Number(revenue);
     const daysLate = Number(lateDays);
+    let steps: string[] = [];
+    let filing: string[] = [];
 
     if (!rev) return;
 
@@ -18,15 +20,25 @@ export default function VatChecker({ language = "en" }: { language?: string }) {
 
     // ✅ Registration logic
     if (rev >= 375000) {
-      status =
-        language === "ar"
-          ? "✅ التسجيل في ضريبة القيمة المضافة إلزامي"
-          : "✅ Mandatory VAT registration required";
-    } else if (rev >= 187500) {
-      status =
-        language === "ar"
-          ? "⚠️ مؤهل للتسجيل الطوعي"
-          : "⚠️ Eligible for voluntary registration";
+  status = "✅ Mandatory VAT registration required";
+
+  steps = [
+    "Create FTA account at https://eservices.tax.gov.ae",
+    "Fill VAT registration application",
+    "Upload required documents",
+    "Receive TRN (Tax Registration Number)"
+  ];
+}
+    else if (rev >= 187500) {
+  status = "⚠️ Eligible for voluntary registration";
+
+  steps = [
+    "Create FTA account",
+    "Apply for voluntary VAT registration",
+    "Submit documents",
+    "Receive TRN"
+  ];
+}
     } else {
       status =
         language === "ar"
