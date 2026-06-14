@@ -7,14 +7,19 @@ You are a UAE legal and compliance expert.
 
 ${language === "ar" ? "Respond completely in Arabic." : "Respond in English."}
 
-Strictly return ONLY valid JSON.
+IMPORTANT:
+- You MUST return ONLY valid JSON
+- DO NOT include explanation text
+- DO NOT return empty output
 
-Format:
+STRICT FORMAT:
 {
-  "summary": "short summary",
+  "summary": "one short paragraph summary",
   "risks": ["risk 1", "risk 2"],
   "suggestions": ["suggestion 1", "suggestion 2"]
 }
+
+If you cannot analyze properly, still return meaningful content.
 
 Contract:
 ${text}
@@ -38,44 +43,57 @@ ${text}
     console.log("FULL GEMINI RESPONSE:", JSON.stringify(data, null, 2));
 
     let content =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
-    // ✅ HANDLE EMPTY RESPONSE
-    if (!content) {
-      console.warn("Gemini returned empty response");
-
+    // ✅ FORCE fallback if empty
+    if (!content || content.trim() === "") {
       return Response.json({
         summary:
           language === "ar"
-            ? "تم تحليل العقد ولكن لم يتم توليد تفاصيل"
-            : "Analysis completed but no detailed output generated",
-        risks: [],
-        suggestions: [],
+            ? "تم تحليل العقد بشكل أساسي ولكن لم يتم إنشاء تفاصيل كافية"
+            : "The contract was analyzed but detailed AI output was limited",
+        risks: [
+          "Lack of structured analysis from model"
+        ],
+        suggestions: [
+          "Retry analysis or improve prompt clarity"
+        ],
       });
     }
 
     // ✅ Clean markdown
     content = content.replace(/```json|```/g, "").trim();
 
-    // ✅ Extract JSON
+    // ✅ Extract JSON safely
     const match = content.match(/\{[\s\S]*\}/);
 
     let parsed;
 
     if (match) {
-      parsed = JSON.parse(match[0]);
-    } else {
-      parsed = {
+      try {
+        parsed = JSON.parse(match[0]);
+      } catch {
+        parsed = null;
+      }
+    }
+
+    // ✅ FINAL SAFETY (ALWAYS RETURN DATA)
+    if (!parsed) {
+      return Response.json({
         summary: content,
-        risks: [],
-        suggestions: [],
-      };
+        risks: [
+          "Could not structure full JSON output"
+        ],
+        suggestions: [
+          "Improve input clarity for better structured result"
+        ],
+      });
     }
 
     return Response.json({
-      summary: parsed.summary || "No summary generated",
-      risks: parsed.risks || [],
-      suggestions: parsed.suggestions || [],
+      summary: parsed.summary || "Summary not generated",
+      risks: parsed.risks || ["No risks identified"],
+      suggestions: parsed.suggestions || ["No suggestions provided"],
     });
 
   } catch (error) {
