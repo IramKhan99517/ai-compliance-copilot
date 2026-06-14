@@ -19,14 +19,20 @@ export default function Home() {
         darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-black"
       }`}
     >
-      {/* HEADER */}
+      {/* 🔷 HEADER */}
       <div className={`border-b ${darkMode ? "bg-gray-800" : "bg-white"}`}>
         <div className="max-w-4xl mx-auto p-6 flex justify-between items-center">
 
           <div>
             <h1 className="text-3xl font-bold">
-              LIMRA — {isArabic ? "مساعد الامتثال الذكي" : "AI Compliance Copilot"} 🇦🇪
+              LIMRA 🇦🇪
             </h1>
+
+            <p className="text-gray-500 mt-1">
+              {isArabic
+                ? "مساعد الامتثال الذكي للشركات في الإمارات"
+                : "AI Compliance Copilot for UAE Businesses"}
+            </p>
 
             <p className="text-sm mt-1 text-gray-500">
               {isArabic
@@ -35,7 +41,9 @@ export default function Home() {
             </p>
           </div>
 
+          {/* Controls */}
           <div className="flex items-center gap-4">
+            
             {/* Language */}
             <select
               value={language}
@@ -53,78 +61,82 @@ export default function Home() {
             >
               {darkMode ? <Sun size={18} /> : <Moon size={18} />}
             </button>
+
           </div>
         </div>
       </div>
 
-      {/* CONTENT */}
+      {/* 🔷 CONTENT */}
       <div className="flex-1">
         <div className="max-w-4xl mx-auto p-6">
 
           {/* Tabs */}
           <div
-            className={`flex gap-3 p-2 rounded-xl shadow-sm w-fit ${
+            className={`flex gap-3 p-2 rounded-full shadow-sm w-fit ${
               darkMode ? "bg-gray-800" : "bg-white"
             }`}
           >
             <button
               onClick={() => setActiveTab("contract")}
-              className={`px-5 py-2 rounded-lg ${
+              className={`px-6 py-2 rounded-full font-medium transition ${
                 activeTab === "contract"
-                  ? "bg-black text-white"
-                  : "text-gray-600 hover:bg-gray-100"
+                  ? "bg-black text-white shadow"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               }`}
             >
-              {isArabic ? "تحليل العقود" : "Contract Analyzer"}
+              {isArabic ? "تحليل العقود 🇦🇪" : "Contract Analyzer 🇦🇪"}
             </button>
 
             <button
               onClick={() => setActiveTab("vat")}
-              className={`px-5 py-2 rounded-lg ${
+              className={`px-6 py-2 rounded-full font-medium transition ${
                 activeTab === "vat"
-                  ? "bg-black text-white"
-                  : "text-gray-600 hover:bg-gray-100"
+                  ? "bg-black text-white shadow"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               }`}
             >
-              {isArabic ? "فحص ضريبة القيمة المضافة" : "VAT Checker"}
+              {isArabic ? "فحص ضريبة القيمة المضافة 🇦🇪" : "VAT Checker 🇦🇪"}
             </button>
           </div>
 
           {/* Feature Content */}
           <div className="mt-6">
-            {activeTab === "contract" && (
-              <UploadBox language={language} />
-            )}
-            {activeTab === "vat" && (
-              <VatChecker language={language} />
-            )}
+            {activeTab === "contract" && <UploadBox language={language} />}
+            {activeTab === "vat" && <VatChecker language={language} />}
           </div>
 
         </div>
       </div>
 
-      {/* ✅ CLEAN FOOTER (NO ERRORS) */}
+      {/* 🔻 FOOTER */}
       <footer
         className={`mt-10 border-t ${
           darkMode ? "bg-gray-800 text-gray-300" : "bg-white text-gray-600"
         }`}
       >
-        <div className="max-w-4xl mx-auto p-6 text-sm flex justify-between">
+        <div className="max-w-4xl mx-auto p-6 text-sm space-y-4">
 
+          {/* Copyright */}
           <p>
             {isArabic
               ? "© 2026 LIMRA AI جميع الحقوق محفوظة"
               : "© 2026 LIMRA AI — All rights reserved"}
           </p>
 
-          <div className="flex gap-4 font-medium">
-            <span className="hover:underline cursor-pointer">
-              {isArabic ? "اتصل بنا" : "Contact"}
-            </span>
+          {/* Contact Info ✅ */}
+          <div className="text-sm space-y-1">
+            <p className="font-semibold">
+              {isArabic ? "معلومات الاتصال" : "Contact"}
+            </p>
 
-            <span className="hover:underline cursor-pointer">
-              {isArabic ? "الخصوصية" : "Privacy"}
-            </span>
+            <p>
+              {isArabic
+                ? "إرم مجيد خان (المؤسس)"
+                : "Iram Majeed Khan (Founder)"}
+            </p>
+
+            <p>Email: iramk99517@gmail.com</p>
+            <p>Phone: +91 9892361112</p>
           </div>
 
         </div>
