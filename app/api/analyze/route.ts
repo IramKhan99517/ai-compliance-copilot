@@ -1,5 +1,9 @@
 export async function POST(req: Request) {
   try {
+    
+// ✅ ADD THIS LINE HERE
+    console.log("KEY:", process.env.GROQ_API_KEY);
+
     const { text, language } = await req.json();
 
     const prompt = `
