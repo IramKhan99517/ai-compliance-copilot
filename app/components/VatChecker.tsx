@@ -7,6 +7,8 @@ export default function VatChecker({ language = "en" }: { language?: string }) {
   const [lateDays, setLateDays] = useState("");
   const [result, setResult] = useState<any>(null);
 
+  const isArabic = language === "ar";
+
   const handleCheck = () => {
     const rev = Number(revenue);
     const daysLate = Number(lateDays);
@@ -18,48 +20,66 @@ export default function VatChecker({ language = "en" }: { language?: string }) {
     let filing: string[] = [];
     let penalty = 0;
 
-    // ✅ VAT Registration Logic
+    // ✅ Registration logic
     if (rev >= 375000) {
-      status =
-        language === "ar"
-          ? "✅ التسجيل في ضريبة القيمة المضافة إلزامي"
-          : "✅ Mandatory VAT registration required in UAE";
+      status = isArabic
+        ? "✅ التسجيل في ضريبة القيمة المضافة إلزامي"
+        : "✅ Mandatory VAT registration required in UAE";
 
-      steps = [
-        "Create FTA account at https://eservices.tax.gov.ae",
-        "Fill VAT registration application",
-        "Upload required business documents",
-        "Receive TRN (Tax Registration Number)"
-      ];
+      steps = isArabic
+        ? [
+            "إنشاء حساب على بوابة الهيئة الاتحادية للضرائب عبر https://eservices.tax.gov.ae",
+            "تعبئة نموذج التسجيل في ضريبة القيمة المضافة",
+            "تحميل المستندات المطلوبة",
+            "الحصول على رقم التسجيل الضريبي (TRN)"
+          ]
+        : [
+            "Create FTA account via https://eservices.tax.gov.ae",
+            "Fill VAT registration application",
+            "Upload required business documents",
+            "Receive TRN (Tax Registration Number)"
+          ];
 
     } else if (rev >= 187500) {
-      status =
-        language === "ar"
-          ? "⚠️ يمكنك التسجيل طوعياً"
-          : "⚠️ Eligible for voluntary VAT registration";
+      status = isArabic
+        ? "⚠️ يمكنك التسجيل طوعياً"
+        : "⚠️ Eligible for voluntary VAT registration";
 
-      steps = [
-        "Create FTA account",
-        "Apply for voluntary VAT registration",
-        "Submit required documents",
-        "Receive TRN"
-      ];
+      steps = isArabic
+        ? [
+            "إنشاء حساب في بوابة الهيئة",
+            "التقديم للتسجيل الطوعي",
+            "إرسال المستندات",
+            "الحصول على رقم TRN"
+          ]
+        : [
+            "Create FTA account",
+            "Apply for voluntary VAT registration",
+            "Submit required documents",
+            "Receive TRN"
+          ];
     } else {
-      status =
-        language === "ar"
-          ? "✅ لا يلزم التسجيل حالياً"
-          : "✅ VAT registration not required currently";
+      status = isArabic
+        ? "✅ لا يلزم التسجيل حالياً"
+        : "✅ VAT registration not required currently";
     }
 
-    // ✅ Filing Guidance (Always shown)
-    filing = [
-      "File VAT returns quarterly via FTA portal",
-      "Maintain invoices and financial records",
-      "Pay VAT before deadline to avoid penalties",
-      "VAT returns must be filed within 28 days of tax period end"
-    ];
+    // ✅ Filing guidance
+    filing = isArabic
+      ? [
+          "تقديم الإقرارات الضريبية ربع سنوياً عبر بوابة FTA",
+          "الاحتفاظ بالفواتير والسجلات المالية",
+          "دفع الضريبة قبل الموعد لتجنب الغرامات",
+          "يجب تقديم الإقرار خلال 28 يوماً من نهاية الفترة الضريبية"
+        ]
+      : [
+          "File VAT returns quarterly via FTA portal",
+          "Maintain invoices and financial records",
+          "Pay VAT before deadline to avoid penalties",
+          "VAT returns must be filed within 28 days of tax period end"
+        ];
 
-    // ✅ Penalty Calculation (Simplified UAE Model)
+    // ✅ Penalty calculation
     if (daysLate > 0) {
       penalty = 1000;
 
@@ -80,27 +100,35 @@ export default function VatChecker({ language = "en" }: { language?: string }) {
     });
   };
 
+  // ✅ Reset function
+  const handleReset = () => {
+    setRevenue("");
+    setLateDays("");
+    setResult(null);
+  };
+
   return (
     <div className="mt-6 p-6 bg-white rounded-2xl shadow space-y-4">
 
       {/* ✅ TITLE */}
       <h2 className="text-xl font-semibold">
-        {language === "ar"
+        {isArabic
           ? "مدقق ضريبة القيمة المضافة 🇦🇪"
           : "UAE VAT Compliance Checker 🇦🇪"}
       </h2>
 
+      {/* ✅ Subtext */}
       <p className="text-sm text-gray-500">
-        {language === "ar"
-          ? "تحقق من التزامات ضريبة القيمة المضافة وفق قوانين الإمارات"
-          : "Check VAT obligations and compliance under UAE regulations"}
+        {isArabic
+          ? "تحقق من التزاماتك الضريبية والغرامات المحتملة"
+          : "Check VAT obligations, registration and penalties"}
       </p>
 
-      {/* ✅ Revenue Input */}
+      {/* ✅ Revenue */}
       <input
         type="number"
         placeholder={
-          language === "ar"
+          isArabic
             ? "الإيرادات السنوية (درهم)"
             : "Annual Revenue (AED)"
         }
@@ -109,28 +137,41 @@ export default function VatChecker({ language = "en" }: { language?: string }) {
         onChange={(e) => setRevenue(e.target.value)}
       />
 
-      {/* ✅ Late Days Input */}
+      {/* ✅ Late days */}
       <input
         type="number"
         placeholder={
-          language === "ar"
-            ? "عدد أيام التأخير في التقديم"
-            : "Days late for VAT filing"
+          isArabic
+            ? "عدد أيام التأخير"
+            : "Days late for filing"
         }
         className="w-full border p-3 rounded-lg"
         value={lateDays}
         onChange={(e) => setLateDays(e.target.value)}
       />
 
-      {/* ✅ Button */}
-      <button
-        onClick={handleCheck}
-        className="px-6 py-3 bg-black text-white rounded-xl hover:bg-gray-900 transition"
-      >
-        {language === "ar" ? "تحقق الآن" : "Check VAT Status"}
-      </button>
+      {/* ✅ Buttons */}
+      <div className="flex gap-3">
+        
+        {/* ✅ Check Button */}
+        <button
+          onClick={handleCheck}
+          className="px-6 py-3 bg-black text-white rounded-xl hover:bg-gray-900 transition transform active:scale-95"
+        >
+          {isArabic ? "تحقق الآن" : "Check VAT"}
+        </button>
 
-      {/* ✅ RESULT SECTION */}
+        {/* ✅ Reset Button */}
+        <button
+          onClick={handleReset}
+          className="px-6 py-3 border rounded-xl hover:bg-gray-100 transition transform active:scale-95"
+        >
+          {isArabic ? "إعادة تعيين" : "Reset"}
+        </button>
+
+      </div>
+
+      {/* ✅ RESULT */}
       {result && (
         <div className="space-y-4 mt-4">
 
@@ -143,7 +184,7 @@ export default function VatChecker({ language = "en" }: { language?: string }) {
           {result.steps.length > 0 && (
             <div className="p-4 bg-blue-50 rounded-lg">
               <h3 className="font-semibold mb-2">
-                📋 {language === "ar" ? "خطوات التسجيل" : "Registration Steps"}
+                📋 {isArabic ? "خطوات التسجيل" : "Registration Steps"}
               </h3>
 
               <ul className="space-y-1">
@@ -154,10 +195,10 @@ export default function VatChecker({ language = "en" }: { language?: string }) {
             </div>
           )}
 
-          {/* ✅ Filing Guidance */}
+          {/* ✅ Filing */}
           <div className="p-4 bg-green-50 rounded-lg">
             <h3 className="font-semibold mb-2">
-              💡 {language === "ar" ? "إرشادات الامتثال" : "Compliance & Filing"}
+              💡 {isArabic ? "إرشادات الامتثال" : "Compliance & Filing"}
             </h3>
 
             <ul className="space-y-1">
@@ -167,21 +208,15 @@ export default function VatChecker({ language = "en" }: { language?: string }) {
             </ul>
           </div>
 
-          {/* ✅ Penalty Section */}
+          {/* ✅ Penalty */}
           {result.lateDays > 0 && (
             <div className="p-4 bg-red-50 rounded-lg">
               <h3 className="font-semibold text-red-600">
-                ⚠️ {language === "ar" ? "غرامة التأخير" : "Late Filing Penalty"}
+                ⚠️ {isArabic ? "غرامة التأخير" : "Late Filing Penalty"}
               </h3>
 
               <p className="mt-2 text-lg font-bold">
                 AED {result.penalty}
-              </p>
-
-              <p className="text-sm text-gray-600 mt-1">
-                {language === "ar"
-                  ? "تقدير تقريبي للغرامات حسب قوانين الإمارات"
-                  : "Estimated penalty based on UAE VAT rules"}
               </p>
             </div>
           )}
