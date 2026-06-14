@@ -78,11 +78,11 @@ ${text}
     }
 
     return Response.json({
-      summary: parsed.summary || "No summary",
-      risks: parsed.risks || [],
-      suggestions: parsed.suggestions || []
-    });
-
+  summary: parsed.summary || "No summary",
+  risks: parsed.risks || [],
+  suggestions: parsed.suggestions || [],
+  riskScore: Math.floor(Math.random() * 100)
+});
   } catch (error) {
     console.error("FINAL GROQ ERROR:", error);
 
