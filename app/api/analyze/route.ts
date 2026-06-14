@@ -7,11 +7,12 @@ You are a UAE legal expert.
 
 ${language === "ar" ? "Respond in Arabic." : "Respond in English."}
 
-Return JSON:
+Analyze the contract and return JSON ONLY:
+
 {
-  "summary": "...",
-  "risks": ["..."],
-  "suggestions": ["..."]
+  "summary": "short summary",
+  "risks": ["risk1", "risk2"],
+  "suggestions": ["suggestion1", "suggestion2"]
 }
 
 Contract:
@@ -34,33 +35,57 @@ ${text}
 
     const data = await response.json();
 
-    let content = data.choices?.[0]?.message?.content || "";
+    console.log("GROQ RAW RESPONSE:", JSON.stringify(data, null, 2));
 
+    let content = data?.choices?.[0]?.message?.content;
+
+    // ✅ SAFETY check
+    if (!content) {
+      return Response.json({
+        summary: "No response generated",
+        risks: [],
+        suggestions: []
+      });
+    }
+
+    // ✅ Clean markdown
     content = content.replace(/```json|```/g, "").trim();
 
+    // ✅ Extract JSON safely
     const match = content.match(/\{[\s\S]*\}/);
 
     let parsed;
 
     if (match) {
-      parsed = JSON.parse(match[0]);
-    } else {
-      parsed = {
+      try {
+        parsed = JSON.parse(match[0]);
+      } catch {
+        parsed = null;
+      }
+    }
+
+    // ✅ FINAL fallback
+    if (!parsed) {
+      return Response.json({
         summary: content,
         risks: [],
         suggestions: []
-      };
+      });
     }
 
-    return Response.json(parsed);
+    return Response.json({
+      summary: parsed.summary || "No summary",
+      risks: parsed.risks || [],
+      suggestions: parsed.suggestions || []
+    });
 
   } catch (error) {
-    console.error("GROQ ERROR:", error);
+    console.error("FINAL GROQ ERROR:", error);
 
     return Response.json({
-      summary: "Error occurred",
+      summary: "Error occurred while analyzing",
       risks: [],
-      suggestions: [],
+      suggestions: []
     });
   }
 }
