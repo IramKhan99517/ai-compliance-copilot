@@ -1,13 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function VatChecker({ language = "en" }: { language?: string }) {
   const [revenue, setRevenue] = useState("");
   const [lateDays, setLateDays] = useState("");
+  const [deadline, setDeadline] = useState("");
   const [result, setResult] = useState<any>(null);
 
   const isArabic = language === "ar";
+
+  // ✅ Load saved deadline
+  useEffect(() => {
+    const savedDeadline = localStorage.getItem("vat_deadline");
+    if (savedDeadline) setDeadline(savedDeadline);
+  }, []);
 
   const handleCheck = () => {
     const rev = Number(revenue);
@@ -23,78 +30,71 @@ export default function VatChecker({ language = "en" }: { language?: string }) {
     // ✅ Registration logic
     if (rev >= 375000) {
       status = isArabic
-        ? "✅ التسجيل في ضريبة القيمة المضافة إلزامي"
-        : "✅ Mandatory VAT registration required in UAE";
+        ? "✅ التسجيل إلزامي"
+        : "✅ Mandatory VAT registration required";
 
       steps = isArabic
         ? [
-            "إنشاء حساب على بوابة الهيئة الاتحادية للضرائب عبر https://eservices.tax.gov.ae",
+            "إنشاء حساب على بوابة FTA",
             "تعبئة نموذج التسجيل",
-            "تحميل المستندات المطلوبة",
-            "الحصول على رقم TRN"
-          ]
-        : [
-            "Create FTA account via https://eservices.tax.gov.ae",
-            "Fill VAT registration application",
-            "Upload required documents",
-            "Receive TRN"
-          ];
-    } else if (rev >= 187500) {
-      status = isArabic
-        ? "⚠️ يمكنك التسجيل طوعياً"
-        : "⚠️ Eligible for voluntary VAT registration";
-
-      steps = isArabic
-        ? [
-            "إنشاء حساب في بوابة الهيئة",
-            "التقديم للتسجيل الطوعي",
-            "إرسال المستندات",
+            "تحميل المستندات",
             "الحصول على TRN"
           ]
         : [
             "Create FTA account",
-            "Apply for voluntary registration",
-            "Submit documents",
-            "Receive TRN"
+            "Fill registration form",
+            "Upload documents",
+            "Get TRN"
           ];
+    } else if (rev >= 187500) {
+      status = isArabic
+        ? "⚠️ تسجيل طوعي"
+        : "⚠️ Eligible for voluntary registration";
+
+      steps = isArabic
+        ? ["إنشاء حساب", "تقديم طلب", "إرسال المستندات", "الحصول على TRN"]
+        : ["Create account", "Apply", "Submit docs", "Get TRN"];
     } else {
       status = isArabic
-        ? "✅ لا يلزم التسجيل حالياً"
-        : "✅ VAT registration not required currently";
+        ? "✅ لا يلزم التسجيل"
+        : "✅ No VAT registration required";
     }
 
     // ✅ Filing
     filing = isArabic
-      ? [
-          "تقديم الإقرارات الضريبية ربع سنوياً عبر بوابة FTA",
-          "الاحتفاظ بالفواتير والسجلات",
-          "دفع الضريبة قبل الموعد",
-          "تقديم خلال 28 يوم من نهاية الفترة"
-        ]
-      : [
-          "File VAT returns quarterly",
-          "Maintain invoices and records",
-          "Pay before deadline",
-          "File within 28 days of period end"
-        ];
+      ? ["تقديم الإقرار", "الاحتفاظ بالسجلات", "الدفع في الوقت"]
+      : ["File returns", "Maintain records", "Pay on time"];
 
     // ✅ Penalty
     if (daysLate > 0) {
       penalty = 1000;
-
       if (daysLate > 30) penalty += 2000;
-
       penalty += Math.round(rev * 0.02);
+    }
+
+    // ✅ Save deadline
+    if (deadline) {
+      localStorage.setItem("vat_deadline", deadline);
     }
 
     setResult({ status, steps, filing, penalty, lateDays: daysLate });
   };
 
-  const handleReset = () => {
-    setRevenue("");
-    setLateDays("");
-    setResult(null);
+  // ✅ Deadline logic
+  const calculateDays = () => {
+    if (!deadline) return null;
+
+    const today = new Date();
+    const due = new Date(deadline);
+
+    const diff = Math.floor(
+      (due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    return diff;
   };
+
+  const daysLeft = calculateDays();
 
   return (
     <div className="
@@ -105,29 +105,14 @@ export default function VatChecker({ language = "en" }: { language?: string }) {
 
       {/* ✅ TITLE */}
       <h2 className="text-xl font-semibold">
-        {isArabic
-          ? "مدقق ضريبة القيمة المضافة 🇦🇪"
-          : "UAE VAT Compliance Checker 🇦🇪"}
+        {isArabic ? "مدقق ضريبة القيمة المضافة 🇦🇪" : "UAE VAT Checker 🇦🇪"}
       </h2>
 
-      {/* ✅ Subtitle */}
-      <p className="text-sm text-gray-600 dark:text-gray-300">
-        {isArabic
-          ? "تحقق من الالتزامات والغرامات"
-          : "Check VAT obligations and penalties"}
-      </p>
-
-      {/* ✅ Revenue input */}
+      {/* ✅ Revenue */}
       <input
         type="number"
-        placeholder={
-          isArabic ? "الإيرادات السنوية (درهم)" : "Annual Revenue (AED)"
-        }
-        className="
-          w-full border p-3 rounded-lg
-          bg-white text-black border-gray-300
-          dark:bg-gray-700 dark:text-white dark:border-gray-600
-        "
+        placeholder={isArabic ? "الإيرادات السنوية" : "Annual Revenue (AED)"}
+        className="w-full border p-3 rounded-lg dark:bg-gray-700"
         value={revenue}
         onChange={(e) => setRevenue(e.target.value)}
       />
@@ -135,69 +120,78 @@ export default function VatChecker({ language = "en" }: { language?: string }) {
       {/* ✅ Late days */}
       <input
         type="number"
-        placeholder={
-          isArabic ? "عدد أيام التأخير" : "Days late for filing"
-        }
-        className="
-          w-full border p-3 rounded-lg
-          bg-white text-black border-gray-300
-          dark:bg-gray-700 dark:text-white dark:border-gray-600
-        "
+        placeholder={isArabic ? "أيام التأخير" : "Days late"}
+        className="w-full border p-3 rounded-lg dark:bg-gray-700"
         value={lateDays}
         onChange={(e) => setLateDays(e.target.value)}
       />
 
+      {/* ✅ NEW: Deadline input */}
+      <div>
+        <label className="text-sm block mb-1">
+          {isArabic ? "تاريخ الاستحقاق" : "VAT Deadline"}
+        </label>
+        <input
+          type="date"
+          value={deadline}
+          onChange={(e) => setDeadline(e.target.value)}
+          className="w-full border p-3 rounded-lg dark:bg-gray-700"
+        />
+      </div>
+
+      {/* ✅ DEADLINE ALERT */}
+      {daysLeft !== null && (
+        <>
+          {daysLeft >= 0 && daysLeft <= 5 && (
+            <div className="p-3 bg-yellow-100 dark:bg-yellow-600/20 rounded-lg">
+              ⚠️ {isArabic
+                ? `متبقي ${daysLeft} يوم`
+                : `Due in ${daysLeft} days`}
+            </div>
+          )}
+
+          {daysLeft < 0 && (
+            <div className="p-3 bg-red-100 dark:bg-red-600/20 rounded-lg">
+              ❌ {isArabic ? "تم تجاوز الموعد" : "Deadline missed!"}
+            </div>
+          )}
+        </>
+      )}
+
       {/* ✅ Buttons */}
       <div className="flex gap-3">
-
         <button
           onClick={handleCheck}
-          className="
-            px-6 py-3 rounded-xl transition transform hover:scale-105 active:scale-95
-            bg-black text-white hover:bg-gray-900
-            dark:bg-white dark:text-black dark:hover:bg-gray-200
-          "
+          className="px-6 py-3 bg-black text-white rounded-xl hover:scale-105 active:scale-95 transition dark:bg-white dark:text-black"
         >
           {isArabic ? "تحقق الآن" : "Check VAT"}
         </button>
 
         <button
-          onClick={handleReset}
-          className="
-            px-6 py-3 border rounded-xl transition transform active:scale-95
-            bg-white text-black border-gray-300
-            dark:bg-gray-700 dark:text-white dark:border-gray-500
-          "
+          onClick={() => {
+            setRevenue("");
+            setLateDays("");
+            setDeadline("");
+            setResult(null);
+          }}
+          className="px-6 py-3 border rounded-xl"
         >
           {isArabic ? "إعادة تعيين" : "Reset"}
         </button>
-
       </div>
 
       {/* ✅ RESULT */}
       {result && (
-        <div className="space-y-4 mt-4">
+        <div className="space-y-4 mt-4 animate-fadeIn">
 
-          {/* ✅ Status */}
-          <div className="
-            p-4 rounded-lg font-medium
-            bg-gray-100 text-black
-            dark:bg-gray-700 dark:text-white
-          ">
+          <div className="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
             {result.status}
           </div>
 
-          {/* ✅ Steps */}
           {result.steps.length > 0 && (
-            <div className="
-              p-4 rounded-lg
-              bg-blue-50 text-black
-              dark:bg-blue-900/20 dark:text-blue-300
-            ">
-              <h3 className="font-semibold mb-2">
-                📋 {isArabic ? "خطوات التسجيل" : "Registration Steps"}
-              </h3>
-              <ul className="space-y-1">
+            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <h3>📋 Steps</h3>
+              <ul>
                 {result.steps.map((s: string, i: number) => (
                   <li key={i}>• {s}</li>
                 ))}
@@ -205,33 +199,19 @@ export default function VatChecker({ language = "en" }: { language?: string }) {
             </div>
           )}
 
-          {/* ✅ Filing */}
-          <div className="
-            p-4 rounded-lg
-            bg-green-50 text-black
-            dark:bg-green-900/20 dark:text-green-300
-          ">
-            <h3 className="font-semibold mb-2">
-              💡 {isArabic ? "إرشادات الامتثال" : "Compliance"}
-            </h3>
-            <ul className="space-y-1">
+          <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+            <h3>💡 Compliance</h3>
+            <ul>
               {result.filing.map((f: string, i: number) => (
                 <li key={i}>• {f}</li>
               ))}
             </ul>
           </div>
 
-          {/* ✅ Penalty */}
           {result.lateDays > 0 && (
-            <div className="
-              p-4 rounded-lg
-              bg-red-50 text-black
-              dark:bg-red-900/20 dark:text-red-300
-            ">
-              <h3 className="font-semibold text-red-600 dark:text-red-400">
-                ⚠️ {isArabic ? "غرامة التأخير" : "Penalty"}
-              </h3>
-              <p className="font-bold mt-2">AED {result.penalty}</p>
+            <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+              <h3>⚠️ Penalty</h3>
+              <p>AED {result.penalty}</p>
             </div>
           )}
 
