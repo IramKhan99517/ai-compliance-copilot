@@ -26,8 +26,9 @@ export default function UploadBox({ language = "en" }: { language?: string }) {
     setLoading(false);
   };
 
-  // ✅ COPY FUNCTION
   const handleCopy = () => {
+    if (!result) return;
+
     const text = `
 Summary:
 ${result.summary}
@@ -42,19 +43,15 @@ ${result.suggestions?.join("\n")}
     alert(language === "ar" ? "تم النسخ ✅" : "Copied ✅");
   };
 
-  // ✅ DOWNLOAD PDF FUNCTION
   const handleDownload = () => {
+    if (!result) return;
+
     const doc = new jsPDF();
 
-    doc.setFontSize(14);
-    doc.text("LIMRA AI Compliance Report", 10, 10);
-
-    doc.setFontSize(12);
+    doc.text("LIMRA AI Report", 10, 10);
     doc.text(`Summary:\n${result.summary}`, 10, 20);
-
-    doc.text(`\nRisks:\n${result.risks?.join("\n")}`, 10, 60);
-
-    doc.text(`\nSuggestions:\n${result.suggestions?.join("\n")}`, 10, 100);
+    doc.text(`Risks:\n${result.risks?.join("\n")}`, 10, 60);
+    doc.text(`Suggestions:\n${result.suggestions?.join("\n")}`, 10, 100);
 
     doc.save("LIMRA_Report.pdf");
   };
@@ -62,160 +59,99 @@ ${result.suggestions?.join("\n")}
   return (
     <div className="mt-6 space-y-6">
 
-      {/* 📤 Upload Box */}
-      <div className="
-        p-6 border-2 border-dashed rounded-2xl text-center shadow-sm
-        bg-white text-black border-gray-300
-        dark:bg-gray-800 dark:text-white dark:border-gray-500
-      ">
+      {/* Upload */}
+      <div className="p-6 border-2 border-dashed rounded-2xl text-center shadow-sm bg-white dark:bg-gray-800">
 
-        <label className="cursor-pointer flex flex-col items-center">
-          <p className="font-medium text-gray-600 dark:text-gray-300">
-            {language === "ar"
-              ? "اسحب العقد هنا أو اضغط للتحميل"
-              : "Drag & drop your contract or click to upload"}
-          </p>
-
+        <label className="cursor-pointer">
+          <p>{language === "ar" ? "ارفع العقد" : "Upload contract"}</p>
           <input
             type="file"
-            accept=".txt"
             className="hidden"
             onChange={(e) => setFile(e.target.files?.[0] || null)}
           />
         </label>
 
-        {file && (
-          <div className="
-            mt-4 px-3 py-2 rounded-full inline-block text-sm
-            bg-gray-200 text-black
-            dark:bg-gray-700 dark:text-white
-          ">
-            📄 {file.name}
-          </div>
-        )}
+        {file && <p className="mt-2">{file.name}</p>}
 
         <button
           onClick={handleAnalyze}
-          disabled={loading}
-          className="
-            mt-4 px-6 py-3 rounded-xl transition transform hover:scale-105 active:scale-95
-            bg-black text-white hover:bg-gray-900
-            dark:bg-white dark:text-black dark:hover:bg-gray-200
-          "
+          className="mt-4 px-6 py-2 bg-black text-white rounded-lg"
         >
           {language === "ar" ? "تحليل العقد" : "Analyze Contract"}
         </button>
+
       </div>
 
-      {/* ⏳ Loading */}
-      {loading && (
-        <div className="text-center font-medium text-gray-600 dark:text-gray-300">
-          {language === "ar" ? "جارٍ التحليل..." : "Analyzing contract..."}
-        </div>
-      )}
-
-      {/* ✅ RESULT */}
+      {/* Results */}
       {result && (
-        <div className="space-y-6">
+        <div className="space-y-4">
 
-          {/* ✅ Risk Score + Label */}
+          {/* ✅ Risk Score */}
           {result.riskScore && (
-            <div className="
-              p-4 rounded-xl text-center
-              bg-yellow-100 text-black
-              dark:bg-yellow-600/20 dark:text-yellow-300
-            ">
-              <p className="font-semibold">
-                {language === "ar" ? "درجة المخاطر" : "Risk Score"}
+            <div className="p-4 bg-yellow-100 rounded-lg text-center">
+              <p>
+                {language === "ar" ? "درجة المخاطر" : "Risk Score"}:
+                {" "} {result.riskScore}%
               </p>
 
-              <p className="text-2xl font-bold">
-                {result.riskScore}%
-              </p>
-
-              <p className="mt-1 font-medium">
+              <p>
                 {result.riskScore < 30
-                  ? (language === "ar" ? "🟢 منخفض" : "Low Risk")
+                  ? "🟢 Low Risk"
                   : result.riskScore < 70
-                  ? (language === "ar" ? "🟡 متوسط" : "Medium Risk")
-                  : (language === "ar" ? "🔴 مرتفع" : "High Risk")}
+                  ? "🟡 Medium Risk"
+                  : "🔴 High Risk"}
               </p>
             </div>
           )}
 
-          {/* ✅ SUMMARY */}
-          <div className="p-5 border rounded-xl shadow bg-white text-black border-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-600">
-            <h2 className="font-semibold text-lg mb-2">
-              {language === "ar" ? "الملخص" : "Summary"}
-            </h2>
-            <p className="text-gray-700 dark:text-gray-300">
-              {result.summary}
-            </p>
+          {/* ✅ Summary */}
+          <div>
+            <h2>Summary</h2>
+            <p>{result.summary}</p>
           </div>
 
-          {/* ⚠️ RISKS */}
-          <div className="p-5 border rounded-xl shadow bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-700">
-            <h2 className="font-semibold text-lg text-red-600 mb-2 dark:text-red-400">
-              ⚠️ {language === "ar" ? "المخاطر الرئيسية" : "Key Risks"}
-            </h2>
-
-            <ul className="space-y-2">
-              {result.risks?.map((risk: string, i: number) => (
-                <li key={i} className="text-gray-700 dark:text-gray-300">
-                  • {risk}
-                </li>
+          {/* ✅ Risks */}
+          <div>
+            <h2>Risks</h2>
+            <ul>
+              {result.risks?.map((r: string, i: number) => (
+                <li key={i}>{r}</li>
               ))}
             </ul>
           </div>
 
-          {/* 💡 SUGGESTIONS */}
-          <div className="p-5 border rounded-xl shadow bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700">
-            <h2 className="font-semibold text-lg text-green-600 mb-2 dark:text-green-400">
-              💡 {language === "ar" ? "التوصيات" : "Recommendations"}
-            </h2>
-
-            <ul className="space-y-2">
+          {/* ✅ Suggestions */}
+          <div>
+            <h2>Suggestions</h2>
+            <ul>
               {result.suggestions?.map((s: string, i: number) => (
-                <li key={i} className="text-gray-700 dark:text-gray-300">
-                  • {s}
-                </li>
+                <li key={i}>{s}</li>
               ))}
             </ul>
           </div>
 
           {/* ✅ ACTION BUTTONS */}
-          <div className="flex gap-3 mt-4 flex-wrap">
+          <div className="flex gap-3">
 
-            {/* Copy */}
             <button
               onClick={handleCopy}
-              className="
-                px-4 py-2 rounded-lg border
-                bg-white text-black border-gray-300
-                dark:bg-gray-700 dark:text-white dark:border-gray-500
-                hover:scale-105 active:scale-95 transition
-              "
+              className="px-4 py-2 border rounded-lg"
             >
-              📋 {language === "ar" ? "نسخ النتائج" : "Copy Results"}
+              Copy Results
             </button>
 
-            {/* Download */}
             <button
               onClick={handleDownload}
-              className="
-                px-4 py-2 rounded-lg
-                bg-black text-white hover:bg-gray-900
-                dark:bg-white dark:text-black dark:hover:bg-gray-200
-                transition transform active:scale-95
-              "
+              className="px-4 py-2 bg-black text-white rounded-lg"
             >
-              📄 {language === "ar" ? "تحميل التقرير" : "Download PDF"}
+              Download PDF
             </button>
 
           </div>
 
         </div>
       )}
+
     </div>
   );
 }
