@@ -88,17 +88,29 @@ export default function UploadBox({ language = "en" }: { language?: string }) {
 
           {/* ✅ Risk Score */}
           {result.riskScore && (
-            <div className="
-              p-4 rounded-xl text-center
-              bg-yellow-100 text-black
-              dark:bg-yellow-600/20 dark:text-yellow-300
-            ">
-              <p className="font-semibold">
-                {language === "ar" ? "درجة المخاطر" : "Risk Score"}
-              </p>
-              <p className="text-2xl font-bold">{result.riskScore}%</p>
-            </div>
-          )}
+  <div className="
+    p-4 rounded-xl text-center
+    bg-yellow-100 text-black
+    dark:bg-yellow-600/20 dark:text-yellow-300
+  ">
+    <p className="font-semibold">
+      {language === "ar" ? "درجة المخاطر" : "Risk Score"}
+    </p>
+
+    <p className="text-2xl font-bold">
+      {result.riskScore}%
+    </p>
+
+    {/* ✅ NEW: Risk Label */}
+    <p className="mt-1 font-medium">
+      {result.riskScore < 30
+        ? (language === "ar" ? "🟢 منخفض" : "Low Risk")
+        : result.riskScore < 70
+        ? (language === "ar" ? "🟡 متوسط" : "Medium Risk")
+        : (language === "ar" ? "🔴 مرتفع" : "High Risk")}
+    </p>
+  </div>
+)}
 
           {/* ✅ SUMMARY */}
           <div className="
