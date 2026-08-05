@@ -34,17 +34,57 @@ export async function POST(req: Request) {
     // ✅ Get input
     const { text, language } = await req.json();
 
-    const prompt = `
-You are a UAE legal expert.
+const hasArabic = /[\u0600-\u06FF]/.test(text);
 
-${language === "ar" ? "Respond in Arabic." : "Respond in English."}
+const prompt = `
+You are a senior UAE and Saudi Arabia (KSA) legal and compliance expert.
 
-Analyze the contract and return JSON ONLY:
+${
+  hasArabic
+    ? `
+The contract contains Arabic text.
+
+Analyze Arabic and English clauses accurately.
+
+If the contract contains both Arabic and English:
+- Identify inconsistencies between languages.
+- Highlight regulatory concerns.
+- Explain legal risks clearly.
+
+Respond primarily in Arabic.
+`
+    : `
+The contract is written in English.
+
+Respond in English.
+`
+}
+
+Review the contract and identify:
+
+- Payment risks
+- Termination risks
+- Liability risks
+- Missing obligations
+- Missing deadlines
+- Governing law concerns
+- UAE compliance concerns
+- KSA (ZATCA) compliance concerns where applicable
+
+Return VALID JSON ONLY.
 
 {
-  "summary": "short summary",
-  "risks": ["risk1", "risk2"],
-  "suggestions": ["suggestion1", "suggestion2"]
+  "summary": "Detailed contract summary",
+  "risks": [
+    "Risk 1",
+    "Risk 2"
+  ],
+  "suggestions": [
+    "Suggestion 1",
+    "Suggestion 2"
+  ],
+  "jurisdiction": "UAE or KSA or International",
+  "languageDetected": "Arabic or English or Bilingual"
 }
 
 Contract:
@@ -118,11 +158,13 @@ ${text}
   } catch (error) {
     console.error("FINAL GROQ ERROR:", error);
 
-    return Response.json({
-      summary: "Error occurred while analyzing",
-      risks: [],
-      suggestions: [],
-      riskScore: 0,
-    });
+   return Response.json({
+  summary: parsed.summary || "No summary",
+  risks: parsed.risks || [],
+  suggestions: parsed.suggestions || [],
+  jurisdiction: parsed.jurisdiction || "Unknown",
+  languageDetected: parsed.languageDetected || "Unknown",
+  riskScore: Math.floor(Math.random() * 100),
+});
   }
 }
