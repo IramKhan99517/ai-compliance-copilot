@@ -20,66 +20,62 @@ export async function POST(req: Request) {
       time: new Date(),
     });
 
-    // ✅ Limit usage (5 requests per user)
+    // ✅ Limit usage
     if (usageMap[ip] > 5) {
       return Response.json({
         summary:
           "Usage limit reached. Please contact admin for extended access.",
         risks: [],
         suggestions: [],
+        jurisdiction: "Unknown",
+        languageDetected: "Unknown",
         riskScore: 0,
       });
     }
 
     // ✅ Get input
     const {
-  text,
-  language,
-  hasArabic,
-  country,
-     } = await req.json();
+      text,
+      language,
+      country,
+    } = await req.json();
 
-const hasArabic = /[\u0600-\u06FF]/.test(text);
-const hasEnglish = /[A-Za-z]/.test(text);
+    // ✅ Detect languages
+    const hasArabic = /[\u0600-\u06FF]/.test(text);
+    const hasEnglish = /[A-Za-z]/.test(text);
 
-let detectedLanguage = "English";
+    let detectedLanguage = "English";
 
-if (hasArabic && hasEnglish) {
-  detectedLanguage = "Bilingual";
-} else if (hasArabic) {
-  detectedLanguage = "Arabic";
-}
+    if (hasArabic && hasEnglish) {
+      detectedLanguage = "Bilingual";
+    } else if (hasArabic) {
+      detectedLanguage = "Arabic";
+    }
 
-    Review this contract according to:
+    // ✅ Build Prompt
+    const prompt = `
+You are a senior UAE and Saudi Arabia (KSA) legal and compliance expert.
+
+Country selected: ${country}
 
 ${
   country === "KSA"
-    ? "Saudi Arabian laws and ZATCA compliance requirements."
-    : "United Arab Emirates laws and FTA compliance requirements."
-}
-const prompt = `
-You are a senior UAE and Saudi Arabia (KSA) legal and compliance expert.
-
-${
-  hasArabic
     ? `
-The contract contains Arabic text.
-
-Analyze Arabic and English clauses accurately.
-
-If the contract contains both Arabic and English:
-- Identify inconsistencies between languages.
-- Highlight regulatory concerns.
-- Explain legal risks clearly.
-
-Respond primarily in Arabic.
+Review this contract according to Saudi Arabian laws and ZATCA compliance requirements.
 `
     : `
-The contract is written in English.
-
-Respond in English.
+Review this contract according to United Arab Emirates laws and FTA compliance requirements.
 `
 }
+
+Language detected: ${detectedLanguage}
+
+Rules:
+
+- Arabic contracts → respond in Arabic.
+- English contracts → respond in English.
+- Bilingual contracts → respond in English and clearly mention that both Arabic and English clauses were detected.
+- For bilingual contracts, identify inconsistencies between Arabic and English clauses.
 
 Review the contract and identify:
 
@@ -90,9 +86,11 @@ Review the contract and identify:
 - Missing deadlines
 - Governing law concerns
 - UAE compliance concerns
-- KSA (ZATCA) compliance concerns where applicable
+- KSA (ZATCA) compliance concerns
+- Missing dispute resolution clauses
+- Missing confidentiality protections
 
-Return VALID JSON ONLY.
+Return VALID JSON ONLY:
 
 {
   "summary": "Detailed contract summary",
@@ -114,8 +112,8 @@ ${text}
 
     // ✅ Call Groq API
     const response = await fetch(
-"https://api.groq.com/openai/v1/chat/completions",
-{
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
         method: "POST",
         headers: {
           Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
@@ -123,13 +121,22 @@ ${text}
         },
         body: JSON.stringify({
           model: "llama-3.1-8b-instant",
-          messages: [{ role: "user", content: prompt }],
+          messages: [
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
         }),
       }
     );
 
     const data = await response.json();
-    console.log("GROQ RAW RESPONSE:", JSON.stringify(data, null, 2));
+
+    console.log(
+      "GROQ RAW RESPONSE:",
+      JSON.stringify(data, null, 2)
+    );
 
     let content = data?.choices?.[0]?.message?.content;
 
@@ -139,35 +146,36 @@ ${text}
         summary: "No response generated",
         risks: [],
         suggestions: [],
+        jurisdiction: "Unknown",
+        languageDetected: detectedLanguage,
         riskScore: 0,
       });
     }
 
-    // ✅ Clean markdown
+    // ✅ Remove markdown wrappers
     content = content.replace(/```json|```/g, "").trim();
 
     // ✅ Extract JSON
-  const match = content.match(/\{[\s\S]*\}/);
+    const match = content.match(/\{[\s\S]*\}/);
 
-let parsed: any = null;
+    let parsed: any = null;
 
-if (match) {
-  try {
-    parsed = JSON.parse(match[0]);
-  } catch (error) {
-    console.error("JSON Parse Error:", error);
-  }
-}
+    if (match) {
+      try {
+        parsed = JSON.parse(match[0]);
+      } catch (error) {
+        console.error("JSON Parse Error:", error);
+      }
+    }
 
-    // ✅ Fallback response
-       // ✅ Fallback response
+    // ✅ Fallback
     if (!parsed) {
       return Response.json({
         summary: content,
         risks: [],
         suggestions: [],
         jurisdiction: "Unknown",
-        languageDetected: hasArabic ? "Arabic" : "English",
+        languageDetected: detectedLanguage,
         riskScore: Math.floor(Math.random() * 100),
       });
     }
@@ -177,10 +185,11 @@ if (match) {
       summary: parsed.summary || "No summary",
       risks: parsed.risks || [],
       suggestions: parsed.suggestions || [],
-      jurisdiction: parsed.jurisdiction || "Unknown",
+      jurisdiction:
+        parsed.jurisdiction ||
+        (country === "KSA" ? "KSA" : "UAE"),
       languageDetected:
-        parsed.languageDetected ||
-        (hasArabic ? "Arabic" : "English"),
+        parsed.languageDetected || detectedLanguage,
       riskScore: Math.floor(Math.random() * 100),
     });
 
