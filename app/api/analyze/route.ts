@@ -118,8 +118,8 @@ ${text}
         role: "user",
         content: prompt,
     },
-  ],
+],
 }),
       }
-        );
+      );
    
