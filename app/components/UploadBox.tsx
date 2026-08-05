@@ -214,27 +214,33 @@ ${result.suggestions?.join("\n")}
 
       {/* Results */}
       {result && (
-        <div className="space-y-6 animate-fadeIn">
+  <div className="space-y-6 animate-fadeIn">
 
-          {/* ✅ Language Detected */}
-          {result.languageDetected && (
-            <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border dark:border-blue-700">
-              🌐 {language === "ar"
-                ? "اللغة المكتشفة"
-                : "Language Detected"}
-              : {result.languageDetected}
-            </div>
-          )}
+    {/* ✅ Selected Country */}
+    <div className="p-4 rounded-xl bg-gray-100 dark:bg-gray-700">
+      🌍 {language === "ar" ? "الدولة" : "Country"}: {country}
+    </div>
 
-          {/* ✅ Jurisdiction */}
-          {result.jurisdiction && (
-            <div className="p-4 rounded-xl bg-purple-50 dark:bg-purple-900/20 border dark:border-purple-700">
-              ⚖️ {language === "ar"
-                ? "الاختصاص القضائي"
-                : "Jurisdiction"}
-              : {result.jurisdiction}
-            </div>
-          )}
+    {/* ✅ Language Detected */}
+    {result.languageDetected && (
+      <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border dark:border-blue-700">
+        🌐 {language === "ar"
+          ? "اللغة المكتشفة"
+          : "Language Detected"}
+        : {result.languageDetected}
+      </div>
+    )}
+
+    {/* ✅ Jurisdiction */}
+    {result.jurisdiction && (
+      <div className="p-4 rounded-xl bg-purple-50 dark:bg-purple-900/20 border dark:border-purple-700">
+        ⚖️ {language === "ar"
+          ? "الاختصاص القضائي"
+          : "Jurisdiction"}
+        : {result.jurisdiction}
+      </div>
+    )}
+
 
           {/* Risk Score */}
           <div className="p-4 bg-yellow-100 dark:bg-yellow-600/20 rounded-xl text-center">
