@@ -19,7 +19,7 @@ export default function UploadBox({
       setLoading(true);
       setResult(null);
 
-      // ✅ Step 1: Extract Text
+      // ✅ Extract text
       const formData = new FormData();
       formData.append("file", file);
 
@@ -39,22 +39,23 @@ export default function UploadBox({
       }
 
       const text = extractedData.text;
-      const hasArabic = /[\u0600-\u06FF]/.test(text);​‌
 
+      // ✅ Detect Arabic
+      const hasArabic = /[\u0600-\u06FF]/.test(text);
 
-      // ✅ Prevent garbage PDF content reaching AI
+      // ✅ Prevent corrupted PDF content
       if (
         text.includes("endstream") ||
         text.includes("FlateDecode") ||
         text.includes("obj")
       ) {
         alert(
-          "Unable to read this PDF correctly. Please try another PDF or DOCX file."
+          "Unable to read this PDF correctly. Please upload another PDF or DOCX file."
         );
         return;
       }
 
-      // ✅ Step 2: Analyze with AI
+      // ✅ AI Analysis
       const analysisResponse = await fetch("/api/analyze", {
         method: "POST",
         headers: {
@@ -63,6 +64,7 @@ export default function UploadBox({
         body: JSON.stringify({
           text,
           language,
+          hasArabic,
         }),
       });
 
@@ -110,7 +112,7 @@ ${result.suggestions?.join("\n")}
   return (
     <div className="mt-6 space-y-6">
 
-      {/* Upload Box */}
+      {/* Upload */}
       <div
         className="
           p-8 border-2 border-dashed rounded-2xl text-center
@@ -121,7 +123,6 @@ ${result.suggestions?.join("\n")}
         "
       >
         <label className="cursor-pointer flex flex-col items-center space-y-3">
-
           <div
             className="
               w-12 h-12 flex items-center justify-center
@@ -193,6 +194,26 @@ ${result.suggestions?.join("\n")}
       {result && (
         <div className="space-y-6 animate-fadeIn">
 
+          {/* ✅ Language Detected */}
+          {result.languageDetected && (
+            <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border dark:border-blue-700">
+              🌐 {language === "ar"
+                ? "اللغة المكتشفة"
+                : "Language Detected"}
+              : {result.languageDetected}
+            </div>
+          )}
+
+          {/* ✅ Jurisdiction */}
+          {result.jurisdiction && (
+            <div className="p-4 rounded-xl bg-purple-50 dark:bg-purple-900/20 border dark:border-purple-700">
+              ⚖️ {language === "ar"
+                ? "الاختصاص القضائي"
+                : "Jurisdiction"}
+              : {result.jurisdiction}
+            </div>
+          )}
+
           {/* Risk Score */}
           <div className="p-4 bg-yellow-100 dark:bg-yellow-600/20 rounded-xl text-center">
             <p className="font-semibold">
@@ -213,13 +234,24 @@ ${result.suggestions?.join("\n")}
 
           {/* Summary */}
           <div className="p-5 rounded-xl shadow bg-white dark:bg-gray-800 border dark:border-gray-600">
-            <h2 className="font-semibold mb-2">Summary</h2>
-            <p>{result.summary}</p>
+            <h2 className="font-semibold mb-2">
+              {language === "ar"
+                ? "الملخص"
+                : "Summary"}
+            </h2>
+
+            <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-300">
+              {result.summary}
+            </div>
           </div>
 
           {/* Risks */}
           <div className="p-5 rounded-xl shadow bg-red-50 dark:bg-red-900/20 border dark:border-red-700">
-            <h2 className="font-semibold mb-2">Risks</h2>
+            <h2 className="font-semibold mb-2">
+              {language === "ar"
+                ? "المخاطر"
+                : "Risks"}
+            </h2>
 
             <ul>
               {result.risks?.map((r: string, i: number) => (
@@ -230,7 +262,11 @@ ${result.suggestions?.join("\n")}
 
           {/* Suggestions */}
           <div className="p-5 rounded-xl shadow bg-green-50 dark:bg-green-900/20 border dark:border-green-700">
-            <h2 className="font-semibold mb-2">Suggestions</h2>
+            <h2 className="font-semibold mb-2">
+              {language === "ar"
+                ? "التوصيات"
+                : "Suggestions"}
+            </h2>
 
             <ul>
               {result.suggestions?.map((s: string, i: number) => (
@@ -239,7 +275,7 @@ ${result.suggestions?.join("\n")}
             </ul>
           </div>
 
-          {/* Action Buttons */}
+          {/* Actions */}
           <div className="flex gap-3">
 
             <button
