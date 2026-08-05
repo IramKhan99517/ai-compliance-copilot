@@ -35,6 +35,15 @@ export async function POST(req: Request) {
     const { text, language } = await req.json();
 
 const hasArabic = /[\u0600-\u06FF]/.test(text);
+const hasEnglish = /[A-Za-z]/.test(text);
+
+let detectedLanguage = "English";
+
+if (hasArabic && hasEnglish) {
+  detectedLanguage = "Bilingual";
+} else if (hasArabic) {
+  detectedLanguage = "Arabic";
+}
 
 const prompt = `
 You are a senior UAE and Saudi Arabia (KSA) legal and compliance expert.
