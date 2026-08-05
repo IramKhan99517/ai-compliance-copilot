@@ -126,37 +126,32 @@ ${text}
     content = content.replace(/```json|```/g, "").trim();
 
     // ✅ Extract JSON
-    const match = content.match(/\{[\s\S]*\}/);
+  const match = content.match(/\{[\s\S]*\}/);
 
-    let parsed;
+let parsed: any = null;
 
-    if (match) {
-      try {
-        parsed = JSON.parse(match[0]);
-      } catch {
-        parsed = null;
-      }
-    }
+if (match) {
+  try {
+    parsed = JSON.parse(match[0]);
+  } catch (error) {
+    console.error("JSON Parse Error:", error);
+  }
+}
 
     // ✅ Fallback response
     if (!parsed) {
-      return Response.json({
-        summary: content,
-        risks: [],
-        suggestions: [],
-        riskScore: Math.floor(Math.random() * 100),
+  return Response.json({
+    summary: content,
+    risks: [],
+    suggestions: [],
+    jurisdiction: "Unknown",
+    languageDetected: "Unknown",
+    riskScore: Math.floor
       });
     }
 
     // ✅ Final response
-    return Response.json({
-      summary: parsed.summary || "No summary",
-      risks: parsed.risks || [],
-      suggestions: parsed.suggestions || [],
-      riskScore: Math.floor(Math.random() * 100),
-    });
-  } catch (error) {
-    console.error("FINAL GROQ ERROR:", error);
+    
 
    return Response.json({
   summary: parsed.summary || "No summary",
