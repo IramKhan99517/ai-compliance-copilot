@@ -32,7 +32,12 @@ export async function POST(req: Request) {
     }
 
     // ✅ Get input
-    const { text, language } = await req.json();
+    const {
+  text,
+  language,
+  hasArabic,
+  country,
+     } = await req.json();
 
 const hasArabic = /[\u0600-\u06FF]/.test(text);
 const hasEnglish = /[A-Za-z]/.test(text);
@@ -45,6 +50,13 @@ if (hasArabic && hasEnglish) {
   detectedLanguage = "Arabic";
 }
 
+    Review this contract according to:
+
+${
+  country === "KSA"
+    ? "Saudi Arabian laws and ZATCA compliance requirements."
+    : "United Arab Emirates laws and FTA compliance requirements."
+}
 const prompt = `
 You are a senior UAE and Saudi Arabia (KSA) legal and compliance expert.
 
