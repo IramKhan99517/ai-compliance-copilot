@@ -30,8 +30,8 @@ export default function Home() {
 
             <p className="text-gray-500 mt-1">
               {isArabic
-                ? "مساعد الامتثال الذكي للشركات في الإمارات"
-                : "AI Compliance Copilot for UAE Businesses"}
+                ? "مساعد الامتثال بالذكاء الاصطناعي لشركات دول الخليج"
+                : "AI Compliance Copilot for GCC Businesses/SME's"}
             </p>
 
             <p className="text-sm mt-1 text-gray-500">
