@@ -3,7 +3,11 @@
 import { useState } from "react";
 import jsPDF from "jspdf";
 
-export default function UploadBox({ language = "en" }: { language?: string }) {
+export default function UploadBox({
+  language = "en",
+}: {
+  language?: string;
+}) {
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -11,25 +15,79 @@ export default function UploadBox({ language = "en" }: { language?: string }) {
   const handleAnalyze = async () => {
     if (!file) return;
 
-    setLoading(true);
-    setResult(null);
+    try {
+      setLoading(true);
+      setResult(null);
 
-    const text = await file.text();
+      // ✅ Step 1: Extract Text
+      const formData = new FormData();
+      formData.append("file", file);
 
-    const res = await fetch("/api/analyze", {
-      method: "POST",
-      body: JSON.stringify({ text, language }),
-    });
+      const extractResponse = await fetch("/api/extract", {
+        method: "POST",
+        body: formData,
+      });
 
-    const data = await res.json();
-    setResult(data);
-    setLoading(false);
+      const extractedData = await extractResponse.json();
+
+      if (!extractResponse.ok || !extractedData.text) {
+        alert(
+          extractedData.error ||
+            "Unable to extract text from document."
+        );
+        return;
+      }
+
+      const text = extractedData.text;
+
+      // ✅ Prevent garbage PDF content reaching AI
+      if (
+        text.includes("endstream") ||
+        text.includes("FlateDecode") ||
+        text.includes("obj")
+      ) {
+        alert(
+          "Unable to read this PDF correctly. Please try another PDF or DOCX file."
+        );
+        return;
+      }
+
+      // ✅ Step 2: Analyze with AI
+      const analysisResponse = await fetch("/api/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text,
+          language,
+        }),
+      });
+
+      const analysisData = await analysisResponse.json();
+
+      setResult(analysisData);
+    } catch (error) {
+      console.error(error);
+      alert("Error analyzing document.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCopy = () => {
     if (!result) return;
 
-    const text = `Summary:\n${result.summary}\n\nRisks:\n${result.risks?.join("\n")}\n\nSuggestions:\n${result.suggestions?.join("\n")}`;
+    const text = `
+Summary:
+${result.summary}
+
+Risks:
+${result.risks?.join("\n")}
+
+Suggestions:
+${result.suggestions?.join("\n")}
+`;
 
     navigator.clipboard.writeText(text);
   };
@@ -38,32 +96,36 @@ export default function UploadBox({ language = "en" }: { language?: string }) {
     if (!result) return;
 
     const doc = new jsPDF();
+
     doc.text("LIMRA AI Report", 10, 10);
     doc.text(`Summary:\n${result.summary}`, 10, 20);
     doc.text(`Risks:\n${result.risks?.join("\n")}`, 10, 60);
     doc.text(`Suggestions:\n${result.suggestions?.join("\n")}`, 10, 100);
+
     doc.save("LIMRA_Report.pdf");
   };
 
   return (
     <div className="mt-6 space-y-6">
 
-      {/* ✅ Upload (FIXED UI) */}
-      <div className="
-        p-8 border-2 border-dashed rounded-2xl text-center
-        bg-white text-black border-gray-300
-        dark:bg-gray-900 dark:text-white dark:border-gray-600
-
-        transition-all duration-300
-        hover:shadow-xl hover:border-black dark:hover:border-white
-      ">
-
+      {/* Upload Box */}
+      <div
+        className="
+          p-8 border-2 border-dashed rounded-2xl text-center
+          bg-white text-black border-gray-300
+          dark:bg-gray-900 dark:text-white dark:border-gray-600
+          transition-all duration-300
+          hover:shadow-xl hover:border-black dark:hover:border-white
+        "
+      >
         <label className="cursor-pointer flex flex-col items-center space-y-3">
 
-          <div className="
-            w-12 h-12 flex items-center justify-center
-            rounded-full bg-gray-100 dark:bg-gray-700
-          ">
+          <div
+            className="
+              w-12 h-12 flex items-center justify-center
+              rounded-full bg-gray-100 dark:bg-gray-700
+            "
+          >
             📄
           </div>
 
@@ -75,70 +137,69 @@ export default function UploadBox({ language = "en" }: { language?: string }) {
 
           <p className="text-sm text-gray-500 dark:text-gray-400">
             {language === "ar"
-              ? "ملفات نصية فقط"
-              : "Supports .txt files"}
+              ? "يدعم TXT و PDF و DOCX"
+              : "Supports TXT, PDF and DOCX contracts"}
           </p>
 
           <input
             type="file"
+            accept=".txt,.pdf,.docx"
             className="hidden"
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
+            onChange={(e) =>
+              setFile(e.target.files?.[0] || null)
+            }
           />
         </label>
 
-        {/* ✅ File display */}
         {file && (
-          <div className="
-            mt-4 px-4 py-2 rounded-full inline-block text-sm
-            bg-gray-100 dark:bg-gray-700
-            border border-gray-300 dark:border-gray-600
-            animate-fadeIn
-          ">
+          <div
+            className="
+              mt-4 px-4 py-2 rounded-full inline-block text-sm
+              bg-gray-100 dark:bg-gray-700
+              border border-gray-300 dark:border-gray-600
+            "
+          >
             ✅ {file.name}
           </div>
         )}
 
-        {/* ✅ FIXED BUTTON (NO FADE ISSUE) */}
         <button
           onClick={handleAnalyze}
+          disabled={loading}
           className="
             mt-6 px-8 py-3 rounded-xl
             bg-black text-white
-
             dark:bg-white dark:text-black
-
             hover:bg-gray-900 dark:hover:bg-gray-200
-
             text-lg font-semibold
             shadow-md hover:shadow-lg
-
             transition-all duration-200
             transform hover:scale-105 active:scale-95
           "
         >
           {loading
-            ? (language === "ar" ? "جارٍ التحليل..." : "Analyzing...")
-            : (language === "ar" ? "تحليل العقد" : "Analyze Contract →")}
+            ? language === "ar"
+              ? "جارٍ التحليل..."
+              : "Analyzing..."
+            : language === "ar"
+            ? "تحليل العقد"
+            : "Analyze Contract →"}
         </button>
-
       </div>
 
-      {/* ✅ Loading */}
-      {loading && (
-        <div className="text-center text-gray-500 dark:text-gray-300">
-          {language === "ar" ? "جارٍ التحليل..." : "Analyzing..."}
-        </div>
-      )}
-
-      {/* ✅ Results */}
+      {/* Results */}
       {result && (
         <div className="space-y-6 animate-fadeIn">
 
-          {/* Risk */}
+          {/* Risk Score */}
           <div className="p-4 bg-yellow-100 dark:bg-yellow-600/20 rounded-xl text-center">
             <p className="font-semibold">
-              {language === "ar" ? "درجة المخاطر" : "Risk Score"}: {result.riskScore}%
+              {language === "ar"
+                ? "درجة المخاطر"
+                : "Risk Score"}{" "}
+              {result.riskScore}%
             </p>
+
             <p>
               {result.riskScore < 30
                 ? "🟢 Low Risk"
@@ -157,6 +218,7 @@ export default function UploadBox({ language = "en" }: { language?: string }) {
           {/* Risks */}
           <div className="p-5 rounded-xl shadow bg-red-50 dark:bg-red-900/20 border dark:border-red-700">
             <h2 className="font-semibold mb-2">Risks</h2>
+
             <ul>
               {result.risks?.map((r: string, i: number) => (
                 <li key={i}>• {r}</li>
@@ -167,6 +229,7 @@ export default function UploadBox({ language = "en" }: { language?: string }) {
           {/* Suggestions */}
           <div className="p-5 rounded-xl shadow bg-green-50 dark:bg-green-900/20 border dark:border-green-700">
             <h2 className="font-semibold mb-2">Suggestions</h2>
+
             <ul>
               {result.suggestions?.map((s: string, i: number) => (
                 <li key={i}>• {s}</li>
@@ -174,8 +237,9 @@ export default function UploadBox({ language = "en" }: { language?: string }) {
             </ul>
           </div>
 
-          {/* Buttons */}
+          {/* Action Buttons */}
           <div className="flex gap-3">
+
             <button
               onClick={handleCopy}
               className="
@@ -184,7 +248,7 @@ export default function UploadBox({ language = "en" }: { language?: string }) {
                 dark:border-gray-600
               "
             >
-              Copy
+              📋 Copy
             </button>
 
             <button
@@ -196,13 +260,12 @@ export default function UploadBox({ language = "en" }: { language?: string }) {
                 hover:scale-105 transition
               "
             >
-              Download PDF
+              📄 Download PDF
             </button>
-          </div>
 
+          </div>
         </div>
       )}
-
     </div>
   );
 }
