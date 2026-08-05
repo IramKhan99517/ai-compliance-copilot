@@ -28,4 +28,8 @@
     "tailwindcss": "^4",
     "typescript": "^5"
   }
+  "dependencies": {
+  "pdf-parse": "^1.1.1",
+  "mammoth": "^1.8.0"
+}
 }
