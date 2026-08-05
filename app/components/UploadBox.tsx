@@ -1,26 +1,5 @@
 "use client";
-const [country, setCountry] = useState("UAE");
-<div className="space-y-2">
-  <label className="font-medium">
-    {language === "ar"
-      ? "اختر الدولة"
-      : "Select Country"}
-  </label>
 
-  <select
-    value={country}
-    onChange={(e) => setCountry(e.target.value)}
-    className="
-      w-full p-3 rounded-xl border
-      bg-white text-black
-      dark:bg-gray-800 dark:text-white
-      dark:border-gray-600
-    "
-  >
-    <option value="UAE">🇦🇪 UAE</option>
-    <option value="KSA">🇸🇦 Saudi Arabia</option>
-  </select>
-</div>
 import { useState } from "react";
 import jsPDF from "jspdf";
 
@@ -29,6 +8,7 @@ export default function UploadBox({
 }: {
   language?: string;
 }) {
+  const [country, setCountry] = useState("UAE");
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -40,7 +20,6 @@ export default function UploadBox({
       setLoading(true);
       setResult(null);
 
-      // ✅ Extract text
       const formData = new FormData();
       formData.append("file", file);
 
@@ -61,10 +40,6 @@ export default function UploadBox({
 
       const text = extractedData.text;
 
-      // ✅ Detect Arabic
-      const hasArabic = /[\u0600-\u06FF]/.test(text);
-
-      // ✅ Prevent corrupted PDF content
       if (
         text.includes("endstream") ||
         text.includes("FlateDecode") ||
@@ -76,18 +51,16 @@ export default function UploadBox({
         return;
       }
 
-      // ✅ AI Analysis
       const analysisResponse = await fetch("/api/analyze", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-       body: JSON.stringify({
-        text,
-        language,
-        hasArabic,
-        country,
-}),
+        body: JSON.stringify({
+          text,
+          language,
+          country,
+        }),
       });
 
       const analysisData = await analysisResponse.json();
@@ -133,6 +106,29 @@ ${result.suggestions?.join("\n")}
 
   return (
     <div className="mt-6 space-y-6">
+
+      {/* Country Selector */}
+      <div className="space-y-2">
+        <label className="font-medium">
+          {language === "ar"
+            ? "اختر الدولة"
+            : "Select Country"}
+        </label>
+
+        <select
+          value={country}
+          onChange={(e) => setCountry(e.target.value)}
+          className="
+            w-full p-3 rounded-xl border
+            bg-white text-black
+            dark:bg-gray-800 dark:text-white
+            dark:border-gray-600
+          "
+        >
+          <option value="UAE">🇦🇪 UAE</option>
+          <option value="KSA">🇸🇦 Saudi Arabia</option>
+        </select>
+      </div>
 
       {/* Upload */}
       <div
@@ -214,35 +210,30 @@ ${result.suggestions?.join("\n")}
 
       {/* Results */}
       {result && (
-  <div className="space-y-6 animate-fadeIn">
+        <div className="space-y-6 animate-fadeIn">
 
-    {/* ✅ Selected Country */}
-    <div className="p-4 rounded-xl bg-gray-100 dark:bg-gray-700">
-      🌍 {language === "ar" ? "الدولة" : "Country"}: {country}
-    </div>
+          <div className="p-4 rounded-xl bg-gray-100 dark:bg-gray-700">
+            🌍 {language === "ar" ? "الدولة" : "Country"}: {country}
+          </div>
 
-    {/* ✅ Language Detected */}
-    {result.languageDetected && (
-      <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border dark:border-blue-700">
-        🌐 {language === "ar"
-          ? "اللغة المكتشفة"
-          : "Language Detected"}
-        : {result.languageDetected}
-      </div>
-    )}
+          {result.languageDetected && (
+            <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border dark:border-blue-700">
+              🌐 {language === "ar"
+                ? "اللغة المكتشفة"
+                : "Language Detected"}
+              : {result.languageDetected}
+            </div>
+          )}
 
-    {/* ✅ Jurisdiction */}
-    {result.jurisdiction && (
-      <div className="p-4 rounded-xl bg-purple-50 dark:bg-purple-900/20 border dark:border-purple-700">
-        ⚖️ {language === "ar"
-          ? "الاختصاص القضائي"
-          : "Jurisdiction"}
-        : {result.jurisdiction}
-      </div>
-    )}
+          {result.jurisdiction && (
+            <div className="p-4 rounded-xl bg-purple-50 dark:bg-purple-900/20 border dark:border-purple-700">
+              ⚖️ {language === "ar"
+                ? "الاختصاص القضائي"
+                : "Jurisdiction"}
+              : {result.jurisdiction}
+            </div>
+          )}
 
-
-          {/* Risk Score */}
           <div className="p-4 bg-yellow-100 dark:bg-yellow-600/20 rounded-xl text-center">
             <p className="font-semibold">
               {language === "ar"
@@ -260,25 +251,19 @@ ${result.suggestions?.join("\n")}
             </p>
           </div>
 
-          {/* Summary */}
           <div className="p-5 rounded-xl shadow bg-white dark:bg-gray-800 border dark:border-gray-600">
             <h2 className="font-semibold mb-2">
-              {language === "ar"
-                ? "الملخص"
-                : "Summary"}
+              {language === "ar" ? "الملخص" : "Summary"}
             </h2>
 
-            <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-300">
+            <div className="whitespace-pre-wrap">
               {result.summary}
             </div>
           </div>
 
-          {/* Risks */}
           <div className="p-5 rounded-xl shadow bg-red-50 dark:bg-red-900/20 border dark:border-red-700">
             <h2 className="font-semibold mb-2">
-              {language === "ar"
-                ? "المخاطر"
-                : "Risks"}
+              {language === "ar" ? "المخاطر" : "Risks"}
             </h2>
 
             <ul>
@@ -288,7 +273,6 @@ ${result.suggestions?.join("\n")}
             </ul>
           </div>
 
-          {/* Suggestions */}
           <div className="p-5 rounded-xl shadow bg-green-50 dark:bg-green-900/20 border dark:border-green-700">
             <h2 className="font-semibold mb-2">
               {language === "ar"
@@ -303,16 +287,10 @@ ${result.suggestions?.join("\n")}
             </ul>
           </div>
 
-          {/* Actions */}
           <div className="flex gap-3">
-
             <button
               onClick={handleCopy}
-              className="
-                px-4 py-2 border rounded-lg
-                hover:scale-105 transition
-                dark:border-gray-600
-              "
+              className="px-4 py-2 border rounded-lg"
             >
               📋 Copy
             </button>
@@ -323,13 +301,12 @@ ${result.suggestions?.join("\n")}
                 px-4 py-2 rounded-lg
                 bg-black text-white
                 dark:bg-white dark:text-black
-                hover:scale-105 transition
               "
             >
               📄 Download PDF
             </button>
-
           </div>
+
         </div>
       )}
     </div>
