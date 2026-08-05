@@ -39,6 +39,8 @@ export default function UploadBox({
       }
 
       const text = extractedData.text;
+      const hasArabic = /[\u0600-\u06FF]/.test(text);​‌
+
 
       // ✅ Prevent garbage PDF content reaching AI
       if (
