@@ -1,5 +1,26 @@
 "use client";
+const [country, setCountry] = useState("UAE");
+<div className="space-y-2">
+  <label className="font-medium">
+    {language === "ar"
+      ? "اختر الدولة"
+      : "Select Country"}
+  </label>
 
+  <select
+    value={country}
+    onChange={(e) => setCountry(e.target.value)}
+    className="
+      w-full p-3 rounded-xl border
+      bg-white text-black
+      dark:bg-gray-800 dark:text-white
+      dark:border-gray-600
+    "
+  >
+    <option value="UAE">🇦🇪 UAE</option>
+    <option value="KSA">🇸🇦 Saudi Arabia</option>
+  </select>
+</div>
 import { useState } from "react";
 import jsPDF from "jspdf";
 
@@ -61,11 +82,12 @@ export default function UploadBox({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          text,
-          language,
-          hasArabic,
-        }),
+       body: JSON.stringify({
+        text,
+        language,
+        hasArabic,
+        country,
+}),
       });
 
       const analysisData = await analysisResponse.json();
