@@ -5,7 +5,7 @@ export async function POST(req: Request) {
   try {
     console.log("KEY:", process.env.GROQ_API_KEY);
 
-    // ✅ Identify user (IP address)
+    // ✅ Identify user
     const ip =
       req.headers.get("x-forwarded-for") ||
       req.headers.get("x-real-ip") ||
@@ -34,13 +34,9 @@ export async function POST(req: Request) {
     }
 
     // ✅ Get input
-    const {
-      text,
-      language,
-      country,
-    } = await req.json();
+    const { text, country } = await req.json();
 
-    // ✅ Detect languages
+    // ✅ Language detection
     const hasArabic = /[\u0600-\u06FF]/.test(text);
     const hasEnglish = /[A-Za-z]/.test(text);
 
@@ -52,7 +48,7 @@ export async function POST(req: Request) {
       detectedLanguage = "Arabic";
     }
 
-    // ✅ Build Prompt
+    // ✅ AI Prompt
     const prompt = `
 You are a senior UAE and Saudi Arabia (KSA) legal and compliance expert.
 
@@ -60,12 +56,8 @@ Country selected: ${country}
 
 ${
   country === "KSA"
-    ? `
-Review this contract according to Saudi Arabian laws and ZATCA compliance requirements.
-`
-    : `
-Review this contract according to United Arab Emirates laws and FTA compliance requirements.
-`
+    ? "Review this contract according to Saudi Arabian laws and ZATCA compliance requirements."
+    : "Review this contract according to UAE laws and FTA compliance requirements."
 }
 
 Language detected: ${detectedLanguage}
@@ -74,7 +66,7 @@ Rules:
 
 - Arabic contracts → respond in Arabic.
 - English contracts → respond in English.
-- Bilingual contracts → respond in English and clearly mention that both Arabic and English clauses were detected.
+- Bilingual contracts → respond in English and clearly state that both Arabic and English clauses were detected.
 - For bilingual contracts, identify inconsistencies between Arabic and English clauses.
 
 Review the contract and identify:
@@ -110,7 +102,7 @@ Contract:
 ${text}
 `;
 
-    // ✅ Call Groq API
+    // ✅ Call Groq
     const response = await fetch(
       "https://api.groq.com/openai/v1/chat/completions",
       {
@@ -121,88 +113,4 @@ ${text}
         },
         body: JSON.stringify({
           model: "llama-3.1-8b-instant",
-          messages: [
-            {
-              role: "user",
-              content: prompt,
-            },
-          ],
-        }),
-      }
-    );
-
-    const data = await response.json();
-
-    console.log(
-      "GROQ RAW RESPONSE:",
-      JSON.stringify(data, null, 2)
-    );
-
-    let content = data?.choices?.[0]?.message?.content;
-
-    // ✅ Safety check
-    if (!content) {
-      return Response.json({
-        summary: "No response generated",
-        risks: [],
-        suggestions: [],
-        jurisdiction: "Unknown",
-        languageDetected: detectedLanguage,
-        riskScore: 0,
-      });
-    }
-
-    // ✅ Remove markdown wrappers
-    content = content.replace(/```json|```/g, "").trim();
-
-    // ✅ Extract JSON
-    const match = content.match(/\{[\s\S]*\}/);
-
-    let parsed: any = null;
-
-    if (match) {
-      try {
-        parsed = JSON.parse(match[0]);
-      } catch (error) {
-        console.error("JSON Parse Error:", error);
-      }
-    }
-
-    // ✅ Fallback
-    if (!parsed) {
-      return Response.json({
-        summary: content,
-        risks: [],
-        suggestions: [],
-        jurisdiction: "Unknown",
-        languageDetected: detectedLanguage,
-        riskScore: Math.floor(Math.random() * 100),
-      });
-    }
-
-    // ✅ Final response
-    return Response.json({
-      summary: parsed.summary || "No summary",
-      risks: parsed.risks || [],
-      suggestions: parsed.suggestions || [],
-      jurisdiction:
-        parsed.jurisdiction ||
-        (country === "KSA" ? "KSA" : "UAE"),
-      languageDetected:
-        parsed.languageDetected || detectedLanguage,
-      riskScore: Math.floor(Math.random() * 100),
-    });
-
-  } catch (error) {
-    console.error("FINAL GROQ ERROR:", error);
-
-    return Response.json({
-      summary: "Error occurred while analyzing",
-      risks: [],
-      suggestions: [],
-      jurisdiction: "Unknown",
-      languageDetected: "Unknown",
-      riskScore: 0,
-    });
-  }
-}
+   
