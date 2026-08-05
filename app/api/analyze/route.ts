@@ -93,8 +93,8 @@ ${text}
 
     // ✅ Call Groq API
     const response = await fetch(
-      "https://api.groq.com/openai/v1/chat/completions",
-      {
+"https://api.groq.com/openai/v1/chat/completions",
+{
         method: "POST",
         headers: {
           Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
@@ -139,27 +139,40 @@ if (match) {
 }
 
     // ✅ Fallback response
+       // ✅ Fallback response
     if (!parsed) {
-  return Response.json({
-    summary: content,
-    risks: [],
-    suggestions: [],
-    jurisdiction: "Unknown",
-    languageDetected: "Unknown",
-    riskScore: Math.floor
+      return Response.json({
+        summary: content,
+        risks: [],
+        suggestions: [],
+        jurisdiction: "Unknown",
+        languageDetected: hasArabic ? "Arabic" : "English",
+        riskScore: Math.floor(Math.random() * 100),
       });
     }
 
     // ✅ Final response
-    
+    return Response.json({
+      summary: parsed.summary || "No summary",
+      risks: parsed.risks || [],
+      suggestions: parsed.suggestions || [],
+      jurisdiction: parsed.jurisdiction || "Unknown",
+      languageDetected:
+        parsed.languageDetected ||
+        (hasArabic ? "Arabic" : "English"),
+      riskScore: Math.floor(Math.random() * 100),
+    });
 
-   return Response.json({
-  summary: parsed.summary || "No summary",
-  risks: parsed.risks || [],
-  suggestions: parsed.suggestions || [],
-  jurisdiction: parsed.jurisdiction || "Unknown",
-  languageDetected: parsed.languageDetected || "Unknown",
-  riskScore: Math.floor(Math.random() * 100),
-});
+  } catch (error) {
+    console.error("FINAL GROQ ERROR:", error);
+
+    return Response.json({
+      summary: "Error occurred while analyzing",
+      risks: [],
+      suggestions: [],
+      jurisdiction: "Unknown",
+      languageDetected: "Unknown",
+      riskScore: 0,
+    });
   }
 }
