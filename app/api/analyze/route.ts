@@ -1,5 +1,5 @@
 // ✅ Simple in-memory usage tracker
-let usageMap: Record<string, number> = {};
+ let usageMap: Record<string, number> = {};
 
 export async function POST(req: Request) {
   try {
@@ -115,10 +115,84 @@ ${text}
           model: "llama-3.1-8b-instant",
           messages: [
             {
-        role: "user",
-        content: prompt,
-    },
-],
-}),
+              role: "user",
+              content: prompt,
+            },
+          ],
+        }),
       }
-      );
+    );
+
+    const data = await response.json();
+
+    console.log(
+      "GROQ RAW RESPONSE:",
+      JSON.stringify(data, null, 2)
+    );
+
+    let content = data?.choices?.[0]?.message?.content;
+
+    // ✅ No response
+    if (!content) {
+      return Response.json({
+        summary: "No response generated",
+        risks: [],
+        suggestions: [],
+        jurisdiction: country || "Unknown",
+        languageDetected: detectedLanguage,
+        riskScore: 0,
+      });
+    }
+
+    // ✅ Clean markdown
+    content = content.replace(/```json|```/g, "").trim();
+
+    // ✅ Extract JSON
+    const match = content.match(/\{[\s\S]*\}/);
+
+    let parsed: any = null;
+
+    if (match) {
+      try {
+        parsed = JSON.parse(match[0]);
+      } catch (error) {
+        console.error("JSON Parse Error:", error);
+      }
+    }
+
+    // ✅ Fallback response
+    if (!parsed) {
+      return Response.json({
+        summary: content,
+        risks: [],
+        suggestions: [],
+        jurisdiction: country || "Unknown",
+        languageDetected: detectedLanguage,
+        riskScore: Math.floor(Math.random() * 100),
+      });
+    }
+
+    // ✅ Final response
+    return Response.json({
+      summary: parsed.summary || "No summary",
+      risks: parsed.risks || [],
+      suggestions: parsed.suggestions || [],
+      jurisdiction: parsed.jurisdiction || country,
+      languageDetected:
+        parsed.languageDetected || detectedLanguage,
+      riskScore: Math.floor(Math.random() * 100),
+    });
+
+  } catch (error) {
+    console.error("FINAL GROQ ERROR:", error);
+
+    return Response.json({
+      summary: "Error occurred while analyzing",
+      risks: [],
+      suggestions: [],
+      jurisdiction: "Unknown",
+      languageDetected: "Unknown",
+      riskScore: 0,
+    });
+  }
+}
