@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import jsPDF from "jspdf";
-import ZatcaCalendar from "./ZatcaCalendar";
+
 
 export default function UploadBox({
   language = "en",
@@ -129,12 +129,6 @@ ${result.suggestions?.join("\n")}
           <option value="UAE">🇦🇪 UAE</option>
           <option value="KSA">🇸🇦 Saudi Arabia</option>
         </select>
-      </div>
-      {country === "KSA" && (
-      <div className="mt-6">
-          <ZatcaCalendar />
-        </div>
-        )}
 
       {/* Upload */}
       <div
