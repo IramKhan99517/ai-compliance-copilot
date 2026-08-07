@@ -98,12 +98,23 @@ export default function Home() {
             >
               {isArabic ? "فحص ضريبة القيمة المضافة 🇦🇪" : "VAT Checker 🇦🇪"}
             </button>
-          </div>
+            <button
+            onClick={() => setActiveTab("zatca")}
+            className={`px-6 py-2 rounded-full font-medium transition ${
+              activeTab === "zatca"
+                ? "bg-black text-white shadow"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
+          >
+            🇸🇦 ZATCA VAT Checker
+          </button>
+            </div>
 
           {/* Feature Content */}
           <div className="mt-6">
             {activeTab === "contract" && <UploadBox language={language} />}
             {activeTab === "vat" && <VatChecker language={language} />}
+            {activeTab === "zatca" && (<ZatcaVatChecker language={language} />)}
           </div>
 
         </div>
