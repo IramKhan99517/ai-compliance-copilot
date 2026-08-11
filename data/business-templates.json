@@ -16,6 +16,50 @@
         "VAT Assessment"
       ]
     }
+    "Restaurant": {
+      "licenses": [],
+      "documents": [],
+      "authorities": [],
+    "taxRequirements": []
+    },
+    "Ecommerce": {
+       "licenses": [],
+      "documents": [],
+      "authorities": [],
+    "taxRequirements": []
+    },
+  
+    "Consultancy": {
+    "licenses": [],
+        "documents": [],
+        "authorities": [],
+      "taxRequirements": []
+         },
+     "Marketing Agency": {
+       "licenses": [],
+        "documents": [],
+        "authorities": [],
+      "taxRequirements": []
+       
+     },
+    "Real Estate": {
+       "licenses": [],
+        "documents": [],
+        "authorities": [],
+      "taxRequirements": []
+     },
+    "IT Services": {
+      "licenses": [],
+        "documents": [],
+        "authorities": [],
+      "taxRequirements": []
+    },
+      "Logistics": {
+         "licenses": [],
+        "documents": [],
+        "authorities": [],
+      "taxRequirements": []
+      }
   },
 
   "Saudi Arabia": {
@@ -54,5 +98,49 @@
         "VAT Registration Assessment"
       ]
     }
+     "Restaurant": {
+      "licenses": [],
+      "documents": [],
+      "authorities": [],
+    "taxRequirements": []
+    },
+    "Ecommerce": {
+       "licenses": [],
+      "documents": [],
+      "authorities": [],
+    "taxRequirements": []
+    },
+  
+    "Consultancy": {
+    "licenses": [],
+        "documents": [],
+        "authorities": [],
+      "taxRequirements": []
+         },
+     "Marketing Agency": {
+       "licenses": [],
+        "documents": [],
+        "authorities": [],
+      "taxRequirements": []
+       
+     },
+    "Real Estate": {
+       "licenses": [],
+        "documents": [],
+        "authorities": [],
+      "taxRequirements": []
+     },
+    "IT Services": {
+      "licenses": [],
+        "documents": [],
+        "authorities": [],
+      "taxRequirements": []
+    },
+      "Logistics": {
+         "licenses": [],
+        "documents": [],
+        "authorities": [],
+      "taxRequirements": []
+      }
   }
 }
