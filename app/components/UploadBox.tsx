@@ -129,6 +129,7 @@ ${result.suggestions?.join("\n")}
           <option value="UAE">🇦🇪 UAE</option>
           <option value="KSA">🇸🇦 Saudi Arabia</option>
         </select>
+        </div>
 
       {/* Upload */}
       <div
