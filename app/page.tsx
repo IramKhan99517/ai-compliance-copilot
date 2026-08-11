@@ -97,29 +97,29 @@ export default function Home() {
               }`}
             >
               {isArabic ? "فحص ضريبة القيمة المضافة 🇦🇪" : "VAT Checker 🇦🇪"}
-            </button>
             <button
-            onClick={() => setActiveTab("zatca")}
-            className={`px-6 py-2 rounded-full font-medium transition ${
-              activeTab === "zatca"
-                ? "bg-black text-white shadow"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
-          >
-            🇸🇦 ZATCA VAT Checker
-          </button>
-           <button>
-             onClick={() => setActiveTab("business")}
-               className={`px-6 py-2 rounded-full font-medium transition ${
-                activeTab === "business"
-                  ? "bg-black text-white shadow"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
-            
-              🏢 Business Setup
-            </button>
+                onClick={() => setActiveTab("zatca")}
+                className={`px-6 py-2 rounded-full font-medium transition ${
+                  activeTab === "zatca"
+                    ? "bg-black text-white shadow"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                🇸🇦 ZATCA VAT Checker
+              </button>
+              
+              <button
+                onClick={() => setActiveTab("business")}
+                className={`px-6 py-2 rounded-full font-medium transition ${
+                  activeTab === "business"
+                    ? "bg-black text-white shadow"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                🏢 Business Setup
+              </button>
+              
               </div>
-
           {/* Feature Content */}
           <div className="mt-6">
              {activeTab === "contract" && (
