@@ -1,1 +1,15 @@
-
+{
+  "UAE": {
+    "Bakery": {
+      "category": "Food & Beverage",
+      "licenses": [
+        "Trade License",
+        "Food Permit"
+      ],
+      "documents": [
+        "Passport Copy",
+        "Lease Agreement"
+      ]
+    }
+  }
+}
