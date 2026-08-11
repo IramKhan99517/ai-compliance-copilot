@@ -6,6 +6,7 @@ import templates from "@/data/business-templates.json";
 export default function BusinessSetup() {
   const [country, setCountry] = useState("UAE");
   const [businessType, setBusinessType] = useState("Bakery");
+
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,38 +19,37 @@ export default function BusinessSetup() {
       businessType as keyof typeof selectedCountry
     ];
 
-  //ask Limra here
   const askLimra = async () => {
-  if (!question.trim()) return;
+    if (!question.trim()) return;
 
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    const response = await fetch(
-      "/api/business-advisor",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          question,
-          country,
-          businessType,
-        }),
-      }
-    );
+    try {
+      const response = await fetch(
+        "/api/business-advisor",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            question,
+            country,
+            businessType,
+          }),
+        }
+      );
 
-    const data = await response.json();
+      const data = await response.json();
 
-    setAnswer(data.answer);
-  } catch (error) {
-    console.error(error);
-    setAnswer("Unable to get advice.");
-  } finally {
-    setLoading(false);
-  }
-};
+      setAnswer(data.answer);
+    } catch (error) {
+      console.error(error);
+      setAnswer("Unable to get advice.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -116,6 +116,7 @@ export default function BusinessSetup() {
       {/* Results */}
       {plan && (
         <div className="space-y-6">
+
           <div className="p-4 border rounded-lg">
             <h3 className="font-semibold mb-2">
               Licenses Required
@@ -171,35 +172,41 @@ export default function BusinessSetup() {
               )}
             </div>
           )}
+
+          {/* Ask LIMRA AI */}
+          <div className="p-4 border rounded-lg space-y-4">
+            <h3 className="font-semibold text-lg">
+              🤖 Ask LIMRA AI
+            </h3>
+
+            <textarea
+              value={question}
+              onChange={(e) =>
+                setQuestion(e.target.value)
+              }
+              placeholder="What documents do I need to start this business?"
+              className="w-full border rounded-lg p-3"
+              rows={4}
+            />
+
+            <button
+              onClick={askLimra}
+              className="px-6 py-2 bg-black text-white rounded-lg"
+            >
+              {loading
+                ? "Thinking..."
+                : "Ask LIMRA"}
+            </button>
+
+            {answer && (
+              <div className="p-4 border rounded-lg bg-gray-50 text-black whitespace-pre-wrap">
+                {answer}
+              </div>
+            )}
+          </div>
+
         </div>
       )}
     </div>
   );
 }
-
-<div className="p-4 border rounded-lg space-y-4">
-  <h3 className="font-semibold text-lg">
-    🤖 Ask LIMRA AI
-  </h3>
-
-  <textarea
-    value={question}
-    onChange={(e) => setQuestion(e.target.value)}
-    placeholder="What documents do I need to start this business?"
-    className="w-full border rounded-lg p-3"
-    rows={4}
-  />
-
-  <button
-    onClick={askLimra}
-    className="px-6 py-2 bg-black text-white rounded-lg"
-  >
-    {loading ? "Thinking..." : "Ask LIMRA"}
-  </button>
-
-  {answer && (
-    <div className="p-4 border rounded-lg bg-gray-50 text-black">
-      {answer}
-    </div>
-  )}
-</div>
