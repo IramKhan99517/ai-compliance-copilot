@@ -21,7 +21,7 @@ export default function BusinessSetup() {
         Business Setup Advisor
       </h2>
 
-      {/* Country Selection */}
+      {/* Country */}
       <div>
         <label className="block mb-2 font-medium">
           Country
@@ -29,7 +29,20 @@ export default function BusinessSetup() {
 
         <select
           value={country}
-          onChange={(e) => setCountry(e.target.value)}
+          onChange={(e) => {
+            const newCountry = e.target.value;
+
+            setCountry(newCountry);
+
+            const firstBusiness =
+              Object.keys(
+                templates[
+                  newCountry as keyof typeof templates
+                ]
+              )[0];
+
+            setBusinessType(firstBusiness);
+          }}
           className="w-full border rounded-lg p-3"
         >
           {Object.keys(templates).map((countryName) => (
@@ -67,8 +80,8 @@ export default function BusinessSetup() {
       {/* Results */}
       {plan && (
         <div className="space-y-6">
-          <div className="p-4 rounded-xl border">
-            <h3 className="font-bold text-lg mb-2">
+          <div className="p-4 border rounded-lg">
+            <h3 className="font-semibold mb-2">
               Licenses Required
             </h3>
 
@@ -79,4 +92,51 @@ export default function BusinessSetup() {
             ))}
           </div>
 
-          <div className
+          <div className="p-4 border rounded-lg">
+            <h3 className="font-semibold mb-2">
+              Documents Required
+            </h3>
+
+            {plan.documents?.map((doc: string) => (
+              <div key={doc}>
+                📄 {doc}
+              </div>
+            ))}
+          </div>
+
+          {plan.authorities && (
+            <div className="p-4 border rounded-lg">
+              <h3 className="font-semibold mb-2">
+                Authorities
+              </h3>
+
+              {plan.authorities.map(
+                (authority: string) => (
+                  <div key={authority}>
+                    🏛️ {authority}
+                  </div>
+                )
+              )}
+            </div>
+          )}
+
+          {plan.taxRequirements && (
+            <div className="p-4 border rounded-lg">
+              <h3 className="font-semibold mb-2">
+                Tax Requirements
+              </h3>
+
+              {plan.taxRequirements.map(
+                (tax: string) => (
+                  <div key={tax}>
+                    💰 {tax}
+                  </div>
+                )
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
