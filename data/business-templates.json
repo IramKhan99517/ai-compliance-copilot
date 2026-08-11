@@ -1,75 +1,57 @@
 {
   "UAE": {
     "Bakery": {
-      "category": "Food & Beverage",
-
       "licenses": [
         "Trade License",
         "Food Establishment Permit"
       ],
-
-      "documents": [
-        "Passport Copy",
-        "Lease Agreement",
-        "Business Plan"
-      ],
-
-      "authorities": [
-        "Department of Economy and Tourism",
-        "Dubai Municipality"
-      ],
-
-      "taxRequirements": [
-        "VAT Assessment",
-        "Corporate Tax Review"
-      ],
-
-      "actions": [
-        {
-          "title": "Review Lease Agreement",
-          "module": "contract_analyzer"
-        },
-        {
-          "title": "Check VAT Registration",
-          "module": "vat_registration"
-        },
-        {
-          "title": "Set Renewal Reminders",
-          "module": "vat_deadlines"
-        }
-      ]
-    },
-
-    "Restaurant": {
-      "category": "Food & Beverage",
-
-      "licenses": [
-        "Trade License",
-        "Food Permit"
-      ],
-
       "documents": [
         "Passport Copy",
         "Lease Agreement"
       ],
-
       "authorities": [
         "Dubai Municipality"
       ],
-
       "taxRequirements": [
         "VAT Assessment"
-      ],
+      ]
+    }
+  },
 
-      "actions": [
-        {
-          "title": "Review Lease Agreement",
-          "module": "contract_analyzer"
-        },
-        {
-          "title": "Check VAT Registration",
-          "module": "vat_registration"
-        }
+  "Saudi Arabia": {
+    "Bakery": {
+      "licenses": [
+        "Commercial Registration",
+        "Municipality License"
+      ],
+      "documents": [
+        "National ID",
+        "Lease Agreement"
+      ],
+      "authorities": [
+        "Ministry of Commerce",
+        "ZATCA"
+      ],
+      "taxRequirements": [
+        "VAT Registration Assessment"
+      ]
+    },
+
+    "Restaurant": {
+      "licenses": [
+        "Commercial Registration",
+        "Food Service License"
+      ],
+      "documents": [
+        "National ID",
+        "Tenancy Contract"
+      ],
+      "authorities": [
+        "Ministry of Municipal Affairs",
+        "ZATCA"
+      ],
+      "taxRequirements": [
+        "VAT Registration Assessment"
       ]
     }
   }
