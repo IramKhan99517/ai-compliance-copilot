@@ -3,6 +3,7 @@
 import { useState } from "react";
 import UploadBox from "./components/UploadBox";
 import VatChecker from "./components/VatChecker";
+import BusinessSetup from "./components/BusinessSetup";
 import { Moon, Sun } from "lucide-react";
 
 export default function Home() {
@@ -107,12 +108,31 @@ export default function Home() {
           >
             🇸🇦 ZATCA VAT Checker
           </button>
-            </div>
+            <button
+              onClick={() => setActiveTab("business")}
+              className={`px-6 py-2 rounded-full font-medium transition ${
+                activeTab === "business"
+                    ? "bg-black text-white shadow"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                🏢 Business Setup
+              </button
+              </div>
 
           {/* Feature Content */}
           <div className="mt-6">
-            {activeTab === "contract" && <UploadBox language={language} />}
-            {activeTab === "vat" && <VatChecker language={language} />}
+             {activeTab === "contract" && (
+                <UploadBox language={language} />
+              )}
+              
+              {activeTab === "vat" && (
+                <VatChecker language={language} />
+              )}
+              
+              {activeTab === "business" && (
+                <BusinessSetup />
+              )}
         
           </div>
 
