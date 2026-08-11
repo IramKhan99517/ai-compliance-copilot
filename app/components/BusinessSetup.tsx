@@ -7,19 +7,21 @@ export default function BusinessSetup() {
   const [country, setCountry] = useState("UAE");
   const [businessType, setBusinessType] = useState("Bakery");
 
+  const selectedCountry =
+    templates[country as keyof typeof templates];
+
   const plan =
-    templates[country as keyof typeof templates]?.[
-      businessType as keyof (typeof templates)["UAE"]
+    selectedCountry?.[
+      businessType as keyof typeof selectedCountry
     ];
 
   return (
     <div className="space-y-6">
-
       <h2 className="text-2xl font-bold">
         Business Setup Advisor
       </h2>
 
-      {/* Country */}
+      {/* Country Selection */}
       <div>
         <label className="block mb-2 font-medium">
           Country
@@ -27,13 +29,17 @@ export default function BusinessSetup() {
 
         <select
           value={country}
-          onChange={(e) => {
-            setCountry(e.target.value);
-            setBusinessType("Bakery");
-          }}
+          onChange={(e) => setCountry(e.target.value)}
           className="w-full border rounded-lg p-3"
         >
-          <option value="UAE">UAE</option>
+          {Object.keys(templates).map((countryName) => (
+            <option
+              key={countryName}
+              value={countryName}
+            >
+              {countryName}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -45,10 +51,12 @@ export default function BusinessSetup() {
 
         <select
           value={businessType}
-          onChange={(e) => setBusinessType(e.target.value)}
+          onChange={(e) =>
+            setBusinessType(e.target.value)
+          }
           className="w-full border rounded-lg p-3"
         >
-          {Object.keys(templates[country]).map((type) => (
+          {Object.keys(selectedCountry).map((type) => (
             <option key={type} value={type}>
               {type}
             </option>
@@ -56,49 +64,19 @@ export default function BusinessSetup() {
         </select>
       </div>
 
-      {/* Plan */}
+      {/* Results */}
       {plan && (
-        <div className="space-y-5">
-
-          <div>
-            <h3 className="font-bold text-lg">
+        <div className="space-y-6">
+          <div className="p-4 rounded-xl border">
+            <h3 className="font-bold text-lg mb-2">
               Licenses Required
             </h3>
 
-            {plan.licenses.map((license) => (
+            {plan.licenses?.map((license: string) => (
               <div key={license}>
                 ✅ {license}
               </div>
             ))}
           </div>
 
-          <div>
-            <h3 className="font-bold text-lg">
-              Documents Required
-            </h3>
-
-            {plan.documents.map((doc) => (
-              <div key={doc}>
-                📄 {doc}
-              </div>
-            ))}
-          </div>
-
-          <div>
-            <h3 className="font-bold text-lg">
-              Authorities
-            </h3>
-
-            {plan.authorities?.map((authority) => (
-              <div key={authority}>
-                🏛️ {authority}
-              </div>
-            ))}
-          </div>
-
-        </div>
-      )}
-
-    </div>
-  );
-}
+          <div className
