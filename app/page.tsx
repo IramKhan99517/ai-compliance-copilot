@@ -113,7 +113,7 @@ export default function Home() {
           <div className="mt-6">
             {activeTab === "contract" && <UploadBox language={language} />}
             {activeTab === "vat" && <VatChecker language={language} />}
-            {activeTab === "zatca" && (<ZatcaVatChecker language={language} />)}
+        
           </div>
 
         </div>
