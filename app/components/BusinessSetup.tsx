@@ -148,55 +148,80 @@ export default function BusinessSetup() {
             ))}
           </div>
 
-          {plan.authorities && (
-            <div className="p-4 border rounded-lg">
-              <h3 className="font-semibold mb-2">
-                Authorities
-              </h3>
+         {plan && (
+  <div className="p-4 border rounded-lg space-y-4">
+    <h3 className="font-semibold text-lg">
+      🚀 LIMRA Business Setup Copilot
+    </h3>
 
-              {plan.authorities.map(
-                (authority: string) => (
-                  <div key={authority}>
-                    🏛️ {authority}
-                  </div>
-                )
-              )}
-            </div>
-          )}
+    <div className="flex flex-wrap gap-2">
+      <button
+        type="button"
+        onClick={() =>
+          setQuestion(`How do I start a ${businessType}?`)
+        }
+        className="px-3 py-2 text-sm border rounded-full"
+      >
+        How do I start this business?
+      </button>
 
-          {plan.taxRequirements && (
-            <div className="p-4 border rounded-lg">
-              <h3 className="font-semibold mb-2">
-                Tax Requirements
-              </h3>
+      <button
+        type="button"
+        onClick={() =>
+          setQuestion(
+            `What licenses are required for a ${businessType}?`
+          )
+        }
+        className="px-3 py-2 text-sm border rounded-full"
+      >
+        Licenses Required
+      </button>
 
-              {plan.taxRequirements.map(
-                (tax: string) => (
-                  <div key={tax}>
-                    💰 {tax}
-                  </div>
-                )
-              )}
-            </div>
-          )}
+      <button
+        type="button"
+        onClick={() =>
+          setQuestion(
+            `What documents are required for a ${businessType}?`
+          )
+        }
+        className="px-3 py-2 text-sm border rounded-full"
+      >
+        Documents Required
+      </button>
 
-          {/* Ask LIMRA AI */}
-          <div className="p-4 border rounded-lg space-y-4">
-            <h3 className="font-semibold text-lg">
-              🚀 LIMRA Business Setup Copilot
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {suggestions.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => setQuestion(item)}
-                  className="px-3 py-2 text-sm border rounded-full hover:bg-gray-100"
-                >
-                  {item}
-                </button>
-              ))}
-          </div>
+      <button
+        type="button"
+        onClick={() =>
+          setQuestion("Do I need VAT registration?")
+        }
+        className="px-3 py-2 text-sm border rounded-full"
+      >
+        VAT Registration
+      </button>
+    </div>
+
+    <textarea
+      value={question}
+      onChange={(e) => setQuestion(e.target.value)}
+      placeholder="Ask anything about starting this business..."
+      className="w-full border rounded-lg p-3"
+      rows={4}
+    />
+
+    <button
+      onClick={askLimra}
+      className="px-6 py-2 bg-black text-white rounded-lg"
+    >
+      {loading ? "Thinking..." : "Ask LIMRA"}
+    </button>
+
+    {answer && (
+      <div className="p-4 border rounded-lg whitespace-pre-wrap">
+        {answer}
+      </div>
+    )}
+  </div>
+)}
 
             <textarea
               value={question}
