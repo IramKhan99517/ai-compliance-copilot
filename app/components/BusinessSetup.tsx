@@ -6,6 +6,9 @@ import templates from "@/data/business-templates.json";
 export default function BusinessSetup() {
   const [country, setCountry] = useState("UAE");
   const [businessType, setBusinessType] = useState("Bakery");
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const selectedCountry =
     templates[country as keyof typeof templates];
@@ -14,6 +17,39 @@ export default function BusinessSetup() {
     selectedCountry?.[
       businessType as keyof typeof selectedCountry
     ];
+
+  //ask Limra here
+  const askLimra = async () => {
+  if (!question.trim()) return;
+
+  setLoading(true);
+
+  try {
+    const response = await fetch(
+      "/api/business-advisor",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question,
+          country,
+          businessType,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    setAnswer(data.answer);
+  } catch (error) {
+    console.error(error);
+    setAnswer("Unable to get advice.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="space-y-6">
