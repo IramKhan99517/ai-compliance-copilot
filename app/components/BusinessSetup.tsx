@@ -222,7 +222,7 @@ export default function BusinessSetup() {
     )}
   </div>
 
-            <textarea>
+            <textarea
               value={question}
               onChange={(e) =>
                 setQuestion(e.target.value)
@@ -230,7 +230,7 @@ export default function BusinessSetup() {
               placeholder="What documents do I need to start this business?"
               className="w-full border rounded-lg p-3"
               rows={4}
-        </textarea>
+            />
 
             <button
               onClick={askLimra}
