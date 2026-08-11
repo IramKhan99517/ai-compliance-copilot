@@ -22,7 +22,35 @@ Focus on:
 User Question:
 ${question}
 
-Provide a clear and professional answer.
+Return your answer in the following format only:
+
+## Overview
+Short summary (2-3 lines)
+
+## Required Licenses
+• Item 1
+• Item 2
+
+## Required Documents
+• Item 1
+• Item 2
+
+## Authorities
+• Item 1
+• Item 2
+
+## Tax Considerations
+• Item 1
+• Item 2
+
+## Recommended Next Steps
+1. Step 1
+2. Step 2
+3. Step 3
+
+Keep the response concise and investor-demo friendly.
+Do not write long paragraphs.
+Use bullet points.
 `;
 
     const response = await fetch(
