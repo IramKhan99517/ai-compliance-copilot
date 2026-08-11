@@ -70,56 +70,58 @@ export default function Home() {
       {/* 🔷 CONTENT */}
       <div className="flex-1">
         <div className="max-w-4xl mx-auto p-6">
-
           {/* Tabs */}
-          <div
-            className={`flex gap-3 p-2 rounded-full shadow-sm w-fit ${
-              darkMode ? "bg-gray-800" : "bg-white"
-            }`}
-          >
-            <button
-              onClick={() => setActiveTab("contract")}
-              className={`px-6 py-2 rounded-full font-medium transition ${
-                activeTab === "contract"
-                  ? "bg-black text-white shadow"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
-            >
-              {isArabic ? "تحليل العقود 🇦🇪" : "Contract Analyzer 🇦🇪"}
-            </button>
+<div
+  className={`flex gap-3 p-2 rounded-full shadow-sm w-fit ${
+    darkMode ? "bg-gray-800" : "bg-white"
+  }`}
+>
+  <button
+    onClick={() => setActiveTab("contract")}
+    className={`px-6 py-2 rounded-full font-medium transition ${
+      activeTab === "contract"
+        ? "bg-black text-white shadow"
+        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+    }`}
+  >
+    {isArabic ? "تحليل العقود 🇦🇪" : "Contract Analyzer 🇦🇪"}
+  </button>
 
-            <button
-              onClick={() => setActiveTab("vat")}
-              className={`px-6 py-2 rounded-full font-medium transition ${
-                activeTab === "vat"
-                  ? "bg-black text-white shadow"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
-            >
-              {isArabic ? "فحص ضريبة القيمة المضافة 🇦🇪" : "VAT Checker 🇦🇪"}
-            <button
-                onClick={() => setActiveTab("zatca")}
-                className={`px-6 py-2 rounded-full font-medium transition ${
-                  activeTab === "zatca"
-                    ? "bg-black text-white shadow"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-              >
-                🇸🇦 ZATCA VAT Checker
-              </button>
-              
-              <button
-                onClick={() => setActiveTab("business")}
-                className={`px-6 py-2 rounded-full font-medium transition ${
-                  activeTab === "business"
-                    ? "bg-black text-white shadow"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-              >
-                🏢 Business Setup
-              </button>
-              
-              </div>
+  <button
+    onClick={() => setActiveTab("vat")}
+    className={`px-6 py-2 rounded-full font-medium transition ${
+      activeTab === "vat"
+        ? "bg-black text-white shadow"
+        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+    }`}
+  >
+    {isArabic ? "فحص ضريبة القيمة المضافة 🇦🇪" : "VAT Checker 🇦🇪"}
+  </button>
+
+  <button
+    onClick={() => setActiveTab("zatca")}
+    className={`px-6 py-2 rounded-full font-medium transition ${
+      activeTab === "zatca"
+        ? "bg-black text-white shadow"
+        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+    }`}
+  >
+    🇸🇦 ZATCA VAT Checker
+  </button>
+
+  <button
+    onClick={() => setActiveTab("business")}
+    className={`px-6 py-2 rounded-full font-medium transition ${
+      activeTab === "business"
+        ? "bg-black text-white shadow"
+        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+    }`}
+  >
+    🏢 Business Setup
+  </button>
+</div>
+
+          
           {/* Feature Content */}
           <div className="mt-6">
              {activeTab === "contract" && (
