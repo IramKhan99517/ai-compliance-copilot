@@ -15,7 +15,7 @@
       "taxRequirements": [
         "VAT Assessment"
       ]
-    }
+    },
     "Restaurant": {
       "licenses": [],
       "documents": [],
@@ -30,10 +30,19 @@
     },
   
     "Consultancy": {
-    "licenses": [],
-        "documents": [],
-        "authorities": [],
-      "taxRequirements": []
+    "licenses": [
+      "Professional License"
+    ],
+        "documents": [
+          "Passport Copy"
+          "Business Plan"
+        ],
+        "authorities": [
+          "Department of Economy and Tourism"
+        ],
+      "taxRequirements": [
+        "VAT Assessment"
+      ]
          },
      "Marketing Agency": {
        "licenses": [],
@@ -97,13 +106,8 @@
       "taxRequirements": [
         "VAT Registration Assessment"
       ]
-    }
-     "Restaurant": {
-      "licenses": [],
-      "documents": [],
-      "authorities": [],
-    "taxRequirements": []
     },
+    
     "Ecommerce": {
        "licenses": [],
       "documents": [],
