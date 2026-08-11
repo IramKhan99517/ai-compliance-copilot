@@ -221,7 +221,6 @@ export default function BusinessSetup() {
       </div>
     )}
   </div>
-)}
 
             <textarea
               value={question}
