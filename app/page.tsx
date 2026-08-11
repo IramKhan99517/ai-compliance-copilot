@@ -115,7 +115,6 @@ export default function Home() {
                     ? "bg-black text-white shadow"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
-              >
                 🏢 Business Setup
               </button>
               </div>
