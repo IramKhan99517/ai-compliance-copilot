@@ -108,7 +108,7 @@ export default function Home() {
           >
             🇸🇦 ZATCA VAT Checker
           </button>
-            <button
+            <button>
               onClick={() => setActiveTab("business")}
               className={`px-6 py-2 rounded-full font-medium transition ${
                 activeTab === "business"
@@ -117,7 +117,7 @@ export default function Home() {
                 }`}
               >
                 🏢 Business Setup
-              </button
+              </button>
               </div>
 
           {/* Feature Content */}
