@@ -176,3 +176,30 @@ export default function BusinessSetup() {
     </div>
   );
 }
+
+<div className="p-4 border rounded-lg space-y-4">
+  <h3 className="font-semibold text-lg">
+    🤖 Ask LIMRA AI
+  </h3>
+
+  <textarea
+    value={question}
+    onChange={(e) => setQuestion(e.target.value)}
+    placeholder="What documents do I need to start this business?"
+    className="w-full border rounded-lg p-3"
+    rows={4}
+  />
+
+  <button
+    onClick={askLimra}
+    className="px-6 py-2 bg-black text-white rounded-lg"
+  >
+    {loading ? "Thinking..." : "Ask LIMRA"}
+  </button>
+
+  {answer && (
+    <div className="p-4 border rounded-lg bg-gray-50 text-black">
+      {answer}
+    </div>
+  )}
+</div>
