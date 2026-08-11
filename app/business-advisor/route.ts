@@ -61,4 +61,7 @@ Provide a clear and professional answer.
     return Response.json({
       answer:
         "Unable to generate guidance at this time.",
+      });
+  }
+}
  
