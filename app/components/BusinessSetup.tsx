@@ -50,6 +50,13 @@ export default function BusinessSetup() {
       setLoading(false);
     }
   };
+  const suggestions = [
+  "How do I start this business?",
+  "What licenses do I need?",
+  "What documents are required?",
+  "Do I need VAT registration?",
+  "Which government approvals are required?",
+];
 
   return (
     <div className="space-y-6">
@@ -176,8 +183,20 @@ export default function BusinessSetup() {
           {/* Ask LIMRA AI */}
           <div className="p-4 border rounded-lg space-y-4">
             <h3 className="font-semibold text-lg">
-              🤖 Ask LIMRA AI
+              🚀 LIMRA Business Setup Copilot
             </h3>
+            <div className="flex flex-wrap gap-2">
+              {suggestions.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => setQuestion(item)}
+                  className="px-3 py-2 text-sm border rounded-full hover:bg-gray-100"
+                >
+                  {item}
+                </button>
+              ))}
+          </div>
 
             <textarea
               value={question}
