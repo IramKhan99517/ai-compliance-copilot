@@ -10,8 +10,10 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState("contract");
   const [darkMode, setDarkMode] = useState(false);
   const [language, setLanguage] = useState("en");
+  const [country, setCountry] = useState("UAE");
 
   const isArabic = language === "ar";
+  
 
   return (
     <main
@@ -70,6 +72,22 @@ export default function Home() {
       {/* 🔷 CONTENT */}
       <div className="flex-1">
         <div className="max-w-4xl mx-auto p-6">
+      {/* Global Country Selector */}
+      <div className="mb-6">
+        <label className="block mb-2 font-medium">
+          Select Country
+        </label>
+      
+        <select
+          value={country}
+          onChange={(e) => setCountry(e.target.value)}
+          className="w-full p-3 rounded-xl border"
+        >
+          <option value="UAE">🇦🇪 UAE</option>
+          <option value="Saudi Arabia">🇸🇦 Saudi Arabia</option>
+        </select>
+      </div>
+          
           {/* Tabs */}
 <div
   className={`flex gap-3 p-2 rounded-full shadow-sm w-fit ${
@@ -115,15 +133,18 @@ export default function Home() {
           {/* Feature Content */}
           <div className="mt-6">
              {activeTab === "contract" && (
-                <UploadBox language={language} />
+                <UploadBox language={language}
+                            country={country}/>
               )}
               
               {activeTab === "vat" && (
-                <VatChecker language={language} />
+                <VatChecker language={language}
+                            country={country}/>
               )}
               
               {activeTab === "business" && (
-                <BusinessSetup />
+                <BusinessSetup language={language}
+                               country={country} />
               )}
         
           </div>
