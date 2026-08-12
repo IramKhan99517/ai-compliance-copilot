@@ -18,15 +18,19 @@ export default function VatChecker({
 
   const isKSA = country === "Saudi Arabia";
 
-  useEffect(() => {
-    const savedDeadline = localStorage.getItem(
-      "vat_deadline"
-    );
+   useEffect(() => {
+  const savedDeadline = localStorage.getItem("vat_deadline");
 
-    if (savedDeadline) {
-      setDeadline(savedDeadline);
-    }
-  }, []);
+  if (savedDeadline) {
+    setDeadline(savedDeadline);
+  } else {
+    const today = new Date()
+      .toISOString()
+      .split("T")[0];
+
+    setDeadline(today);
+  }
+}, []);
 
   const handleCheck = () => {
     const rev = Number(revenue);
