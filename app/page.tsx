@@ -113,7 +113,7 @@ export default function Home() {
         : "bg-gray-200 text-gray-700 hover:bg-gray-300"
     }`}
   >
-    {isArabic ? "فحص ضريبة القيمة المضافة 🇦🇪" : "VAT Checker 🇦🇪"}
+    {isArabic ? "مساعد الامتثال الضريبي" : "VAT Compliance Copilot"}
   </button>
 
 
