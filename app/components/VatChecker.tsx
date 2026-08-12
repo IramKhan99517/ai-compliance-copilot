@@ -2,7 +2,13 @@
 
 import { useState, useEffect } from "react";
 
-export default function VatChecker({ language = "en" }: { language?: string }) {
+export default function VatChecker({
+  language = "en",
+  country,
+}: {
+  language?: string;
+  country: string;
+}) {
   const [revenue, setRevenue] = useState("");
   const [lateDays, setLateDays] = useState("");
   const [deadline, setDeadline] = useState("");
