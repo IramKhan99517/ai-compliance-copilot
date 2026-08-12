@@ -66,7 +66,7 @@ import templates from "@/data/business-templates.json";
           onChange={(e) => {
             const newCountry = e.target.value;
 
-            setCountry(newCountry);
+      
 
             const firstBusiness =
               Object.keys(
