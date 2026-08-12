@@ -21,6 +21,7 @@ Focus on:
 
 User Question:
 ${question}
+
 Return your answer in this exact format:
 
 ✅ Overview
@@ -38,7 +39,7 @@ Return your answer in this exact format:
 Use bullet points.
 Maximum 200 words.
 Avoid long paragraphs.
-';
+`;
 
     const response = await fetch(
       "https://api.groq.com/openai/v1/chat/completions",
@@ -76,7 +77,6 @@ Avoid long paragraphs.
     return Response.json({
       answer:
         "Unable to generate guidance at this time.",
-      });
+    });
   }
-}
 }
