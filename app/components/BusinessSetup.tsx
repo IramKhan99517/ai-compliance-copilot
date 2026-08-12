@@ -1,6 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+useEffect(() => {
+  const firstBusiness =
+    Object.keys(
+      templates[country as keyof typeof templates]
+    )[0];
+
+  setBusinessType(firstBusiness);
+}, [country]);
 import templates from "@/data/business-templates.json";
 
   export default function BusinessSetup({
@@ -55,40 +63,6 @@ import templates from "@/data/business-templates.json";
       <h2 className="text-2xl font-bold">
         🚀 LIMRA Business Setup Copilot
       </h2>
-
-      <div>
-        <label className="block mb-2 font-medium">
-          Country
-        </label>
-
-        <select
-          value={country}
-          onChange={(e) => {
-            const newCountry = e.target.value;
-
-      
-
-            const firstBusiness =
-              Object.keys(
-                templates[
-                  newCountry as keyof typeof templates
-                ]
-              )[0];
-
-            setBusinessType(firstBusiness);
-          }}
-          className="w-full border rounded-lg p-3"
-        >
-          {Object.keys(templates).map((countryName) => (
-            <option
-              key={countryName}
-              value={countryName}
-            >
-              {countryName}
-            </option>
-          ))}
-        </select>
-      </div>
 
       <div>
         <label className="block mb-2 font-medium">
