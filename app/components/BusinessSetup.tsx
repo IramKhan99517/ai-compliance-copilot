@@ -3,8 +3,13 @@
 import { useState } from "react";
 import templates from "@/data/business-templates.json";
 
-export default function BusinessSetup() {
-  const [country, setCountry] = useState("UAE");
+  export default function BusinessSetup({
+    language = "en",
+      country,
+    }: {
+    language?: string;
+    country: string;
+    }) {
   const [businessType, setBusinessType] = useState("Bakery");
 
   const [question, setQuestion] = useState("");
