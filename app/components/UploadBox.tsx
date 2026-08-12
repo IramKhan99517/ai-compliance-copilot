@@ -6,10 +6,12 @@ import jsPDF from "jspdf";
 
 export default function UploadBox({
   language = "en",
+  country,
 }: {
   language?: string;
+  country: string;
 }) {
-  const [country, setCountry] = useState("UAE");
+  
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -108,28 +110,7 @@ ${result.suggestions?.join("\n")}
   return (
     <div className="mt-6 space-y-6">
 
-      {/* Country Selector */}
-      <div className="space-y-2">
-        <label className="font-medium">
-          {language === "ar"
-            ? "اختر الدولة"
-            : "Select Country"}
-        </label>
-
-        <select
-          value={country}
-          onChange={(e) => setCountry(e.target.value)}
-          className="
-            w-full p-3 rounded-xl border
-            bg-white text-black
-            dark:bg-gray-800 dark:text-white
-            dark:border-gray-600
-          "
-        >
-          <option value="UAE">🇦🇪 UAE</option>
-          <option value="KSA">🇸🇦 Saudi Arabia</option>
-        </select>
-      </div>
+      
 
       {/* Upload */}
       <div
