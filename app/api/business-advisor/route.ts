@@ -21,37 +21,24 @@ Focus on:
 
 User Question:
 ${question}
+Return your answer in this exact format:
 
-Return your answer in the following format only:
+✅ Overview
 
-## Overview
-Short summary (2-3 lines)
+📜 Licenses Required
 
-## Required Licenses
-• Item 1
-• Item 2
+📄 Documents Required
 
-## Required Documents
-• Item 1
-• Item 2
+🏛 Authorities
 
-## Authorities
-• Item 1
-• Item 2
+💰 Tax Considerations
 
-## Tax Considerations
-• Item 1
-• Item 2
+🚀 Next Steps
 
-## Recommended Next Steps
-1. Step 1
-2. Step 2
-3. Step 3
-
-Keep the response concise and investor-demo friendly.
-Do not write long paragraphs.
 Use bullet points.
-`;
+Maximum 200 words.
+Avoid long paragraphs.
+';
 
     const response = await fetch(
       "https://api.groq.com/openai/v1/chat/completions",
