@@ -16,10 +16,16 @@ export default function VatChecker({
 
   const isArabic = language === "ar";
 
-  // ✅ Load saved deadline
+  const isKSA = country === "Saudi Arabia";
+
   useEffect(() => {
-    const savedDeadline = localStorage.getItem("vat_deadline");
-    if (savedDeadline) setDeadline(savedDeadline);
+    const savedDeadline = localStorage.getItem(
+      "vat_deadline"
+    );
+
+    if (savedDeadline) {
+      setDeadline(savedDeadline);
+    }
   }, []);
 
   const handleCheck = () => {
@@ -33,144 +39,184 @@ export default function VatChecker({
     let filing: string[] = [];
     let penalty = 0;
 
-    // ✅ Registration logic
-    if (rev >= 375000) {
+    const threshold = isKSA ? 375000 : 375000;
+    const voluntaryThreshold = isKSA
+      ? 187500
+      : 187500;
+
+    if (rev >= threshold) {
       status = isArabic
         ? "✅ التسجيل إلزامي"
-        : "✅ Mandatory VAT registration required";
+        : `✅ Mandatory VAT registration required (${isKSA ? "ZATCA" : "FTA"})`;
 
       steps = isArabic
         ? [
-            "إنشاء حساب على بوابة FTA",
-            "تعبئة نموذج التسجيل",
+            "إنشاء حساب",
+            "تقديم طلب التسجيل",
             "تحميل المستندات",
-            "الحصول على TRN"
+            "الحصول على رقم التسجيل"
           ]
         : [
-            "Create FTA account",
-            "Fill registration form",
+            isKSA
+              ? "Create ZATCA account"
+              : "Create FTA account",
+            "Submit registration",
             "Upload documents",
-            "Get TRN"
+            "Receive VAT registration number"
           ];
-    } else if (rev >= 187500) {
+    } else if (rev >= voluntaryThreshold) {
       status = isArabic
         ? "⚠️ تسجيل طوعي"
         : "⚠️ Eligible for voluntary registration";
 
       steps = isArabic
-        ? ["إنشاء حساب", "تقديم طلب", "إرسال المستندات", "الحصول على TRN"]
-        : ["Create account", "Apply", "Submit docs", "Get TRN"];
+        ? [
+            "إنشاء حساب",
+            "تقديم الطلب",
+            "رفع المستندات"
+          ]
+        : [
+            isKSA
+              ? "Create ZATCA account"
+              : "Create FTA account",
+            "Apply for registration",
+            "Submit supporting documents"
+          ];
     } else {
       status = isArabic
         ? "✅ لا يلزم التسجيل"
         : "✅ No VAT registration required";
     }
 
-    // ✅ Filing
     filing = isArabic
-      ? ["تقديم الإقرار", "الاحتفاظ بالسجلات", "الدفع في الوقت"]
-      : ["File returns", "Maintain records", "Pay on time"];
+      ? [
+          "الاحتفاظ بالسجلات",
+          "تقديم الإقرارات الضريبية",
+          "السداد في الوقت المحدد"
+        ]
+      : [
+          "Maintain VAT records",
+          "Submit VAT returns",
+          "Pay VAT on time"
+        ];
 
-    // ✅ Penalty
     if (daysLate > 0) {
       penalty = 1000;
-      if (daysLate > 30) penalty += 2000;
+
+      if (daysLate > 30) {
+        penalty += 2000;
+      }
+
       penalty += Math.round(rev * 0.02);
     }
 
-    // ✅ Save deadline
     if (deadline) {
-      localStorage.setItem("vat_deadline", deadline);
+      localStorage.setItem(
+        "vat_deadline",
+        deadline
+      );
     }
 
-    setResult({ status, steps, filing, penalty, lateDays: daysLate });
+    setResult({
+      status,
+      steps,
+      filing,
+      penalty,
+      lateDays: daysLate,
+    });
   };
 
-  // ✅ Deadline logic
   const calculateDays = () => {
     if (!deadline) return null;
 
     const today = new Date();
     const due = new Date(deadline);
 
-    const diff = Math.floor(
-      (due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+    return Math.floor(
+      (due.getTime() - today.getTime()) /
+        (1000 * 60 * 60 * 24)
     );
-
-    return diff;
   };
 
   const daysLeft = calculateDays();
 
   return (
-    <div className="
-      mt-6 p-6 rounded-2xl shadow space-y-4
-      bg-white text-black
-      dark:bg-gray-800 dark:text-white
-    ">
-
-      {/* ✅ TITLE */}
-      <h2 className="text-xl font-semibold">
-        {isArabic ? "مدقق ضريبة القيمة المضافة 🇦🇪" : "UAE VAT Checker 🇦🇪"}
-      </h2>
-
-      {/* ✅ Revenue */}
-      <input
-        type="number"
-        placeholder={isArabic ? "الإيرادات السنوية" : "Annual Revenue (AED)"}
-        className="w-full border p-3 rounded-lg dark:bg-gray-700"
-        value={revenue}
-        onChange={(e) => setRevenue(e.target.value)}
-      />
-
-      {/* ✅ Late days */}
-      <input
-        type="number"
-        placeholder={isArabic ? "أيام التأخير" : "Days late"}
-        className="w-full border p-3 rounded-lg dark:bg-gray-700"
-        value={lateDays}
-        onChange={(e) => setLateDays(e.target.value)}
-      />
-
-      {/* ✅ NEW: Deadline input */}
-      <div>
-        <label className="text-sm block mb-1">
-          {isArabic ? "تاريخ الاستحقاق" : "VAT Deadline"}
-        </label>
-        <input
-          type="date"
-          value={deadline}
-          onChange={(e) => setDeadline(e.target.value)}
-          className="w-full border p-3 rounded-lg dark:bg-gray-700"
-        />
+    <div
+      className="
+        mt-6 p-6 rounded-2xl shadow space-y-4
+        bg-white text-black
+        dark:bg-gray-800 dark:text-white
+      "
+    >
+      <div className="p-3 rounded-xl bg-gray-100 dark:bg-gray-700">
+        🌍 {country}
       </div>
 
-      {/* ✅ DEADLINE ALERT */}
+      <h2 className="text-xl font-semibold">
+        {isArabic
+          ? "مساعد الامتثال الضريبي"
+          : "💰 VAT Compliance Copilot"}
+      </h2>
+
+      <input
+        type="number"
+        placeholder={
+          isArabic
+            ? "الإيرادات السنوية"
+            : "Annual Revenue"
+        }
+        value={revenue}
+        onChange={(e) =>
+          setRevenue(e.target.value)
+        }
+        className="w-full border p-3 rounded-lg dark:bg-gray-700"
+      />
+
+      <input
+        type="number"
+        placeholder={
+          isArabic ? "أيام التأخير" : "Days Late"
+        }
+        value={lateDays}
+        onChange={(e) =>
+          setLateDays(e.target.value)
+        }
+        className="w-full border p-3 rounded-lg dark:bg-gray-700"
+      />
+
+      <input
+        type="date"
+        value={deadline}
+        onChange={(e) =>
+          setDeadline(e.target.value)
+        }
+        className="w-full border p-3 rounded-lg dark:bg-gray-700"
+      />
+
       {daysLeft !== null && (
         <>
           {daysLeft >= 0 && daysLeft <= 5 && (
-            <div className="p-3 bg-yellow-100 dark:bg-yellow-600/20 rounded-lg">
-              ⚠️ {isArabic
-                ? `متبقي ${daysLeft} يوم`
-                : `Due in ${daysLeft} days`}
+            <div className="p-3 rounded-lg bg-yellow-100">
+              ⚠️ Due in {daysLeft} days
             </div>
           )}
 
           {daysLeft < 0 && (
-            <div className="p-3 bg-red-100 dark:bg-red-600/20 rounded-lg">
-              ❌ {isArabic ? "تم تجاوز الموعد" : "Deadline missed!"}
+            <div className="p-3 rounded-lg bg-red-100">
+              ❌ Deadline missed
             </div>
           )}
         </>
       )}
 
-      {/* ✅ Buttons */}
       <div className="flex gap-3">
         <button
           onClick={handleCheck}
-          className="px-6 py-3 bg-black text-white rounded-xl hover:scale-105 active:scale-95 transition dark:bg-white dark:text-black"
+          className="px-6 py-3 rounded-xl bg-black text-white"
         >
-          {isArabic ? "تحقق الآن" : "Check VAT"}
+          {isArabic
+            ? "تحقق الآن"
+            : "Check Compliance"}
         </button>
 
         <button
@@ -182,45 +228,61 @@ export default function VatChecker({
           }}
           className="px-6 py-3 border rounded-xl"
         >
-          {isArabic ? "إعادة تعيين" : "Reset"}
+          Reset
         </button>
       </div>
 
-      {/* ✅ RESULT */}
       {result && (
-        <div className="space-y-4 mt-4 animate-fadeIn">
+        <div className="space-y-4">
 
-          <div className="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
+          <div className="p-4 rounded-lg bg-gray-100 dark:bg-gray-700">
             {result.status}
           </div>
 
-          {result.steps.length > 0 && (
-            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <h3>📋 Steps</h3>
-              <ul>
-                {result.steps.map((s: string, i: number) => (
-                  <li key={i}>• {s}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+          <div className="p-4 rounded-lg bg-blue-50">
+            <h3 className="font-semibold mb-2">
+              📋 Registration Steps
+            </h3>
 
-          <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-            <h3>💡 Compliance</h3>
             <ul>
-              {result.filing.map((f: string, i: number) => (
-                <li key={i}>• {f}</li>
-              ))}
+              {result.steps.map(
+                (step: string, index: number) => (
+                  <li key={index}>
+                    • {step}
+                  </li>
+                )
+              )}
+            </ul>
+          </div>
+
+          <div className="p-4 rounded-lg bg-green-50">
+            <h3 className="font-semibold mb-2">
+              ✅ Compliance
+            </h3>
+
+            <ul>
+              {result.filing.map(
+                (item: string, index: number) => (
+                  <li key={index}>
+                    • {item}
+                  </li>
+                )
+              )}
             </ul>
           </div>
 
           {result.lateDays > 0 && (
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-              <h3>⚠️ Penalty</h3>
-              <p>AED {result.penalty}</p>
+            <div className="p-4 rounded-lg bg-red-50">
+              <h3 className="font-semibold mb-2">
+                ⚠️ Estimated Penalty
+              </h3>
+
+              <p>
+                {isKSA ? "SAR" : "AED"}{" "}
+                {result.penalty}
+              </p>
             </div>
           )}
-
         </div>
       )}
     </div>
