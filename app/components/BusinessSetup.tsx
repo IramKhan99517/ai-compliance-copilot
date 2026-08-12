@@ -1,14 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-useEffect(() => {
-  const firstBusiness =
-    Object.keys(
-      templates[country as keyof typeof templates]
-    )[0];
-
-  setBusinessType(firstBusiness);
-}, [country]);
 import templates from "@/data/business-templates.json";
 
   export default function BusinessSetup({
@@ -26,6 +18,14 @@ import templates from "@/data/business-templates.json";
 
   const selectedCountry =
     templates[country as keyof typeof templates];
+    useEffect(() => {
+  const firstBusiness =
+    Object.keys(
+      templates[country as keyof typeof templates]
+    )[0];
+
+  setBusinessType(firstBusiness);
+}, [country , selectedCountry]);
 
   const askLimra = async () => {
     if (!question.trim()) return;
